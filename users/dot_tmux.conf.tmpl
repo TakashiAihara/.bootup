@@ -1,0 +1,116 @@
+# ~/.tmux.conf
+# tmux 設定ファイル
+
+# ==================== 基本設定 ====================
+
+# プレフィックスキーの変更
+set -g prefix C-a
+unbind C-b
+bind C-a send-prefix
+
+# 256色サポート
+set -g default-terminal "tmux-256color"
+set -ag terminal-overrides ",xterm-256color:RGB"
+
+# マウスサポート
+set -g mouse on
+
+# スクロールバックバッファ
+set -g history-limit 50000
+
+# エスケープ時間短縮
+set -sg escape-time 10
+
+# ウィンドウ番号を1から開始
+set -g base-index 1
+setw -g pane-base-index 1
+
+# ウィンドウを閉じた時に番号を詰める
+set -g renumber-windows on
+
+# ==================== キーバインド ====================
+
+# 設定リロード
+bind r source-file ~/.tmux.conf \; display "Config reloaded!"
+
+# ペイン分割（現在のディレクトリを継承）
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+unbind '"'
+unbind %
+
+# ペイン移動 (vim 風)
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+# ペインリサイズ
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+
+# ウィンドウ移動
+bind -r C-h previous-window
+bind -r C-l next-window
+
+# 新しいウィンドウ（現在のディレクトリを継承）
+bind c new-window -c "#{pane_current_path}"
+
+# ==================== コピーモード ====================
+
+# vi キーバインド
+setw -g mode-keys vi
+
+# コピーモード開始
+bind Enter copy-mode
+bind -T copy-mode-vi v send-keys -X begin-selection
+bind -T copy-mode-vi y send-keys -X copy-selection-and-cancel
+
+{{ if .is_mac -}}
+# macOS: pbcopy を使用
+bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "pbcopy"
+{{ else if .is_wsl -}}
+# WSL: clip.exe を使用
+bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "clip.exe"
+{{ else -}}
+# Linux: xclip を使用
+bind -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "xclip -selection clipboard"
+{{ end -}}
+
+# ==================== ステータスバー ====================
+
+# ステータスバーを上に
+set -g status-position top
+
+# 更新間隔
+set -g status-interval 5
+
+# 左側
+set -g status-left-length 40
+set -g status-left "#[fg=green]#S #[fg=white]| "
+
+# 右側
+set -g status-right-length 80
+set -g status-right "#[fg=cyan]#(whoami) #[fg=white]| #[fg=yellow]%Y-%m-%d %H:%M"
+
+# ウィンドウリスト
+set -g status-justify left
+setw -g window-status-format " #I:#W "
+setw -g window-status-current-format " #I:#W "
+
+# ==================== カラー ====================
+
+# ステータスバー
+set -g status-style bg=colour235,fg=colour255
+
+# 現在のウィンドウ
+setw -g window-status-current-style bg=colour166,fg=colour255,bold
+
+# ペインボーダー
+set -g pane-border-style fg=colour240
+set -g pane-active-border-style fg=colour166
+
+# メッセージ
+set -g message-style bg=colour166,fg=colour255,bold

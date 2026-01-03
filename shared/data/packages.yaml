@@ -1,0 +1,125 @@
+# shared/data/packages.yaml
+# パッケージ定義
+
+apt:
+  # すべての環境で必要な基本パッケージ
+  essential:
+    - git
+    - curl
+    - wget
+    - ca-certificates
+    - gnupg
+    - lsb-release
+
+  # 開発に必要な基本パッケージ
+  common:
+    - build-essential
+    - pkg-config
+    - libssl-dev
+    - libffi-dev
+    - zlib1g-dev
+    - libbz2-dev
+    - libreadline-dev
+    - libsqlite3-dev
+    - libncurses5-dev
+    - libncursesw5-dev
+    - xz-utils
+    - tk-dev
+    - libxml2-dev
+    - libxmlsec1-dev
+    - liblzma-dev
+
+  # CLI ツール
+  cli:
+    - jq
+    - tmux
+    - htop
+    - tree
+    - unzip
+    - zip
+    - rsync
+    - socat
+
+  # シェル関連
+  shell:
+    - zsh
+    - zsh-autosuggestions
+    - zsh-syntax-highlighting
+
+  # サーバー環境向け追加
+  server:
+    - fail2ban
+    - ufw
+    - logrotate
+
+  # 開発環境向け追加
+  dev:
+    - shellcheck
+    - python3-pip
+    - python3-venv
+
+  # GUI 環境向け追加
+  gui:
+    - fonts-noto-cjk
+    - fonts-firacode
+    - xclip
+    - xsel
+
+  # WSL 固有
+  wsl:
+    - wslu
+
+brew:
+  # CLI ツール（共通）
+  common:
+    - ripgrep
+    - fd
+    - bat
+    - eza
+    - zoxide
+    - fzf
+    - gh
+    - ghq
+    - jq
+    - yq
+    - direnv
+    - starship
+    - tmux
+    - neovim
+    - lazygit
+    - delta
+
+  # 開発ツール
+  dev:
+    - mise
+    - act
+    - shellcheck
+    - shfmt
+
+  # ネットワークツール
+  network:
+    - httpie
+    - grpcurl
+    - websocat
+
+  # macOS 専用
+  mac_only:
+    - mas
+    - trash
+    - terminal-notifier
+
+  # Cask (macOS GUI アプリ)
+  cask:
+    common:
+      - wezterm
+      - raycast
+      - 1password
+      - visual-studio-code
+      - docker
+
+    home_only:
+      - discord
+      - slack
+      - zoom
+      - spotify
+      - arc

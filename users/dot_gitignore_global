@@ -1,0 +1,110 @@
+# ~/.gitignore_global
+# グローバル Git 無視ファイル
+
+# ==================== OS 固有 ====================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# ==================== エディタ ====================
+
+# Vim/Neovim
+*.swp
+*.swo
+*.swn
+*.un~
+Session.vim
+.netrwhist
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Emacs
+*~
+\#*\#
+.#*
+*.elc
+
+# ==================== 言語/ツール ====================
+
+# Node.js
+node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.egg-info/
+.eggs/
+*.egg
+.venv/
+venv/
+ENV/
+.env
+
+# Ruby
+*.gem
+.bundle/
+vendor/bundle
+
+# Go
+vendor/
+
+# Rust
+target/
+
+# ==================== IDE/ビルドツール ====================
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Compiled
+*.o
+*.so
+*.dll
+*.exe
+*.out
+*.class
+
+# ==================== その他 ====================
+
+# 一時ファイル
+*.tmp
+*.temp
+*.bak
+*.backup
+*.cache
+
+# 秘密情報
+*.pem
+*.key
+*.secrets
+.env.local
+.env.*.local

@@ -1,0 +1,210 @@
+# ~/.zshrc
+# Zsh メイン設定ファイル
+
+# ==================== 環境変数 ====================
+
+export EDITOR="nvim"
+export VISUAL="nvim"
+export PAGER="less"
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+
+# XDG Base Directory
+export XDG_CONFIG_HOME="${HOME}/.config"
+export XDG_DATA_HOME="${HOME}/.local/share"
+export XDG_CACHE_HOME="${HOME}/.cache"
+export XDG_STATE_HOME="${HOME}/.local/state"
+
+# ==================== Homebrew ====================
+
+{{ if .is_mac -}}
+if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
+{{ else if .use_homebrew -}}
+if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+{{ end -}}
+
+# ==================== ヒストリ設定 ====================
+
+HISTFILE="${HOME}/.zsh_history"
+HISTSIZE=50000
+SAVEHIST=50000
+
+setopt EXTENDED_HISTORY       # ヒストリにタイムスタンプを記録
+setopt HIST_EXPIRE_DUPS_FIRST # 重複を先に削除
+setopt HIST_IGNORE_DUPS       # 連続した重複は無視
+setopt HIST_IGNORE_SPACE      # スペースで始まるコマンドは無視
+setopt HIST_VERIFY            # ヒストリ展開後に確認
+setopt SHARE_HISTORY          # ヒストリを共有
+
+# ==================== 補完設定 ====================
+
+autoload -Uz compinit
+compinit -d "${XDG_CACHE_HOME}/zsh/zcompdump"
+
+# 補完スタイル
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+
+# ==================== キーバインド ====================
+
+bindkey -e  # Emacs キーバインド
+
+bindkey '^[[A' history-search-backward
+bindkey '^[[B' history-search-forward
+bindkey '^P' history-search-backward
+bindkey '^N' history-search-forward
+
+# ==================== エイリアス ====================
+
+# ls
+{{ if .is_mac -}}
+alias ls="eza --icons"
+alias ll="eza -la --icons --git"
+alias la="eza -a --icons"
+alias lt="eza -T --icons --level=2"
+{{ else -}}
+if command -v eza &>/dev/null; then
+    alias ls="eza --icons"
+    alias ll="eza -la --icons --git"
+    alias la="eza -a --icons"
+    alias lt="eza -T --icons --level=2"
+else
+    alias ls="ls --color=auto"
+    alias ll="ls -la"
+    alias la="ls -a"
+fi
+{{ end -}}
+
+# cat/bat
+if command -v bat &>/dev/null; then
+    alias cat="bat --plain"
+fi
+
+# grep
+alias grep="grep --color=auto"
+alias fgrep="fgrep --color=auto"
+alias egrep="egrep --color=auto"
+
+# 安全なファイル操作
+alias rm="rm -i"
+alias mv="mv -i"
+alias cp="cp -i"
+
+# ディレクトリ移動
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+
+# Git
+alias g="git"
+alias gs="git status"
+alias ga="git add"
+alias gc="git commit"
+alias gp="git push"
+alias gl="git pull"
+alias gd="git diff"
+alias gco="git checkout"
+alias gb="git branch"
+alias glog="git log --oneline --graph --decorate -15"
+
+# lazygit
+alias lg="lazygit"
+
+# Kubernetes
+{{ if or .is_server .is_home -}}
+if command -v kubectl &>/dev/null; then
+    alias k="kubectl"
+    alias kgp="kubectl get pods"
+    alias kgs="kubectl get services"
+    alias kgd="kubectl get deployments"
+fi
+{{ end -}}
+
+# Docker
+{{ if not .is_container -}}
+if command -v docker &>/dev/null; then
+    alias d="docker"
+    alias dc="docker compose"
+    alias dps="docker ps"
+    alias dimg="docker images"
+fi
+{{ end -}}
+
+# ==================== ツール初期化 ====================
+
+# mise
+if command -v mise &>/dev/null; then
+    eval "$(mise activate zsh)"
+fi
+
+# direnv
+if command -v direnv &>/dev/null; then
+    eval "$(direnv hook zsh)"
+fi
+
+# zoxide
+if command -v zoxide &>/dev/null; then
+    eval "$(zoxide init zsh)"
+fi
+
+# fzf
+{{ if .is_mac -}}
+if [[ -f ~/.fzf.zsh ]]; then
+    source ~/.fzf.zsh
+elif [[ -f /opt/homebrew/opt/fzf/shell/key-bindings.zsh ]]; then
+    source /opt/homebrew/opt/fzf/shell/key-bindings.zsh
+    source /opt/homebrew/opt/fzf/shell/completion.zsh
+fi
+{{ else -}}
+if [[ -f ~/.fzf.zsh ]]; then
+    source ~/.fzf.zsh
+elif [[ -f /home/linuxbrew/.linuxbrew/opt/fzf/shell/key-bindings.zsh ]]; then
+    source /home/linuxbrew/.linuxbrew/opt/fzf/shell/key-bindings.zsh
+    source /home/linuxbrew/.linuxbrew/opt/fzf/shell/completion.zsh
+fi
+{{ end -}}
+
+export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
+export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git"
+
+# ghq + fzf
+ghq-fzf() {
+    local dir
+    dir=$(ghq list | fzf --preview "bat --color=always --style=grid $(ghq root)/{}/README.md 2>/dev/null || ls -la $(ghq root)/{}") && cd "$(ghq root)/$dir"
+}
+alias ghf="ghq-fzf"
+
+# Starship プロンプト
+if command -v starship &>/dev/null; then
+    eval "$(starship init zsh)"
+fi
+
+# ==================== 環境固有設定 ====================
+
+{{ if .is_wsl -}}
+# WSL 固有設定
+export DISPLAY=":0"
+export BROWSER="wslview"
+
+# clip.exe を使ったクリップボード連携
+alias pbcopy="clip.exe"
+alias pbpaste="powershell.exe -command Get-Clipboard"
+{{ end -}}
+
+{{ if .is_mac -}}
+# macOS 固有設定
+# 特になし（デフォルトで pbcopy/pbpaste が使える）
+{{ end -}}
+
+# ==================== ローカル設定の読み込み ====================
+
+if [[ -f "${HOME}/.zshrc.local" ]]; then
+    source "${HOME}/.zshrc.local"
+fi

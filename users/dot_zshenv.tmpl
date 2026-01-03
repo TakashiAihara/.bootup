@@ -1,0 +1,58 @@
+# ~/.zshenv
+# Zsh 環境変数設定（すべての Zsh で読み込まれる）
+
+# ==================== PATH設定 ====================
+
+# Homebrew
+{{ if .is_mac -}}
+if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
+{{ else if .use_homebrew -}}
+if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+{{ end -}}
+
+# ユーザーローカル bin
+export PATH="${HOME}/.local/bin:${PATH}"
+
+# mise (旧 rtx) - 言語ランタイム管理
+if [[ -d "${HOME}/.local/share/mise/shims" ]]; then
+    export PATH="${HOME}/.local/share/mise/shims:${PATH}"
+fi
+
+# Go
+export GOPATH="${HOME}/go"
+export PATH="${GOPATH}/bin:${PATH}"
+
+# Rust
+if [[ -f "${HOME}/.cargo/env" ]]; then
+    source "${HOME}/.cargo/env"
+fi
+
+# ==================== 環境変数 ====================
+
+# デフォルトエディタ
+export EDITOR="nvim"
+export VISUAL="nvim"
+
+# ロケール
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+
+# XDG Base Directory
+export XDG_CONFIG_HOME="${HOME}/.config"
+export XDG_DATA_HOME="${HOME}/.local/share"
+export XDG_CACHE_HOME="${HOME}/.cache"
+export XDG_STATE_HOME="${HOME}/.local/state"
+
+# ==================== 環境固有設定 ====================
+
+{{ if .is_wsl -}}
+# WSL 固有
+export DISPLAY=":0"
+export BROWSER="wslview"
+{{ end -}}

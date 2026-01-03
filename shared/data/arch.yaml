@@ -1,0 +1,90 @@
+# shared/data/arch.yaml
+# ARCH 別設定
+
+wsl:
+  display: ":0"
+  browser: "wslview"
+  clipboard:
+    copy: "clip.exe"
+    paste: "powershell.exe -command Get-Clipboard"
+  features:
+    - docker
+    - gui_support
+    - vscode_remote
+  shell: zsh
+  font_dir: "/mnt/c/Windows/Fonts"
+
+ubuntu:
+  display: ""
+  browser: ""
+  clipboard:
+    copy: "xclip -selection clipboard"
+    paste: "xclip -selection clipboard -o"
+  features:
+    - docker
+    - systemd
+  shell: zsh
+
+ubuntu-dev:
+  display: ":0"
+  browser: "xdg-open"
+  clipboard:
+    copy: "xclip -selection clipboard"
+    paste: "xclip -selection clipboard -o"
+  features:
+    - docker
+    - gui_support
+    - systemd
+  shell: zsh
+
+ubuntu_ct:
+  display: ""
+  browser: ""
+  clipboard:
+    copy: ""
+    paste: ""
+  features: []
+  shell: zsh
+  # コンテナ固有の制限
+  restrictions:
+    - no_docker
+    - no_systemd
+    - no_kernel_modules
+
+ubuntu_nat:
+  display: ""
+  browser: ""
+  clipboard:
+    copy: ""
+    paste: ""
+  features:
+    - docker
+    - systemd
+  shell: zsh
+
+mac:
+  display: ""
+  browser: "open"
+  clipboard:
+    copy: "pbcopy"
+    paste: "pbpaste"
+  features:
+    - docker
+    - gui_support
+    - homebrew_native
+  shell: zsh
+  defaults:
+    # macOS システム設定
+    NSGlobalDomain:
+      AppleShowAllExtensions: true
+      InitialKeyRepeat: 15
+      KeyRepeat: 2
+      ApplePressAndHoldEnabled: false
+    com.apple.dock:
+      autohide: true
+      tilesize: 48
+      show-recents: false
+    com.apple.finder:
+      ShowPathbar: true
+      ShowStatusBar: true
+      AppleShowAllFiles: true

@@ -1,0 +1,78 @@
+#!/bin/bash
+# root/.chezmoiscripts/run_once_before_31-install-packages-brew.sh.tmpl
+# Homebrew パッケージのインストール
+
+set -eu
+
+{{ if not .use_homebrew -}}
+# Homebrew を使用しない環境ではスキップ
+echo "=== Skipping Homebrew packages (Homebrew not used) ==="
+exit 0
+{{ end -}}
+
+echo "=== Installing Homebrew packages ==="
+
+# Homebrew のパスを設定
+{{ if .is_mac -}}
+if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
+{{ else -}}
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+{{ end -}}
+
+# 共通ツール
+brew install \
+    ripgrep \
+    fd \
+    bat \
+    eza \
+    zoxide \
+    fzf \
+    gh \
+    ghq \
+    jq \
+    yq \
+    direnv \
+    starship \
+    tmux \
+    neovim \
+    lazygit \
+    delta
+
+# 開発ツール
+brew install \
+    mise \
+    shellcheck \
+    shfmt
+
+{{ if .is_mac -}}
+# macOS 専用ツール
+brew install \
+    mas \
+    trash \
+    terminal-notifier
+
+{{ if .has_gui -}}
+# GUI アプリ (Cask)
+brew install --cask \
+    wezterm \
+    visual-studio-code \
+    docker
+
+{{ if .is_home -}}
+# ホーム環境のみの GUI アプリ
+brew install --cask \
+    raycast \
+    1password \
+    discord \
+    slack \
+    spotify \
+    arc
+{{ end -}}
+{{ end -}}
+{{ end -}}
+
+echo "=== Homebrew packages installed ==="

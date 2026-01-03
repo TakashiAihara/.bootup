@@ -1,0 +1,30 @@
+#!/bin/bash
+# users/.chezmoiscripts/run_once_after_60-setup-shell.sh.tmpl
+# シェル設定（デフォルトシェル変更など）
+
+set -eu
+
+echo "=== Setting up shell ==="
+
+# デフォルトシェルを zsh に変更
+CURRENT_SHELL=$(getent passwd "$(whoami)" | cut -d: -f7)
+ZSH_PATH=$(command -v zsh || echo "/usr/bin/zsh")
+
+if [[ "${CURRENT_SHELL}" != *"zsh"* ]]; then
+    echo "Changing default shell to zsh..."
+    
+    if [[ -x "${ZSH_PATH}" ]]; then
+        # zsh が /etc/shells に登録されているか確認
+        if grep -q "${ZSH_PATH}" /etc/shells; then
+            chsh -s "${ZSH_PATH}" || echo "Could not change shell (may require sudo)"
+        else
+            echo "zsh is not in /etc/shells, skipping shell change"
+        fi
+    else
+        echo "zsh not found, skipping shell change"
+    fi
+else
+    echo "✓ Default shell is already zsh"
+fi
+
+echo "=== Shell setup complete ==="

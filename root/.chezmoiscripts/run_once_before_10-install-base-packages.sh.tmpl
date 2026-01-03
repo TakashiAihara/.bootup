@@ -1,0 +1,39 @@
+#!/bin/bash
+# root/.chezmoiscripts/run_once_before_10-install-base-packages.sh.tmpl
+# 基本パッケージのインストール
+
+set -eu
+
+{{ if .is_mac -}}
+# macOS: Xcode Command Line Tools のチェック
+echo "=== Checking Xcode Command Line Tools ==="
+if ! xcode-select -p &>/dev/null; then
+    echo "Installing Xcode Command Line Tools..."
+    xcode-select --install
+    echo "Please wait for the installation to complete and run this script again."
+    exit 1
+fi
+echo "✓ Xcode Command Line Tools installed"
+exit 0
+{{ end -}}
+
+{{ if not .is_ubuntu -}}
+# Ubuntu 系以外ではスキップ
+exit 0
+{{ end -}}
+
+echo "=== Installing base packages ==="
+
+# パッケージリストの更新
+apt-get update
+
+# Essential packages
+apt-get install -y \
+    git \
+    curl \
+    wget \
+    ca-certificates \
+    gnupg \
+    lsb-release
+
+echo "=== Base packages installed ==="

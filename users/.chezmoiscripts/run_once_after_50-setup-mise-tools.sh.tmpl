@@ -1,0 +1,55 @@
+#!/bin/bash
+# users/.chezmoiscripts/run_once_after_50-setup-mise-tools.sh.tmpl
+# mise で言語ランタイムをインストール
+
+set -eu
+
+echo "=== Setting up mise tools ==="
+
+# mise のパスを通す
+{{ if .is_mac -}}
+if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
+{{ else if .use_homebrew -}}
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+{{ end -}}
+
+# mise がインストールされているか確認
+if ! command -v mise &>/dev/null; then
+    echo "mise is not installed, skipping tools setup"
+    exit 0
+fi
+
+# mise の設定ファイルを信頼する
+mise trust ~/.config/mise/config.toml 2>/dev/null || true
+
+# mise で言語をインストール
+echo "Installing languages via mise..."
+
+{{ if not .is_container -}}
+mise install node@22 -y || true
+mise install python@3.12 -y || true
+mise install go@1.23 -y || true
+
+{{ if .is_home -}}
+mise install rust@stable -y || true
+mise install deno@latest -y || true
+mise install bun@latest -y || true
+mise install ruby@3.3 -y || true
+mise install java@21 -y || true
+{{ end -}}
+
+{{ else -}}
+# コンテナ環境では最小限のみ
+mise install node@22 -y || true
+{{ end -}}
+
+# デフォルト設定
+mise use --global node@22 || true
+mise use --global python@3.12 || true
+mise use --global go@1.23 || true
+
+echo "=== mise tools setup complete ==="

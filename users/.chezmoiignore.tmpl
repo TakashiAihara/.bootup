@@ -1,0 +1,36 @@
+# users/.chezmoiignore.tmpl
+# 無視パターン（テンプレート）
+
+# OS 固有のファイルを除外
+{{ if not .is_mac }}
+# macOS 以外では除外
+.chezmoiscripts/*brew-cask*
+{{ end }}
+
+{{ if not .is_ubuntu }}
+# Ubuntu 以外では除外
+.chezmoiscripts/*apt*
+{{ end }}
+
+{{ if .is_server }}
+# サーバーでは GUI 関連を除外
+dot_config/alacritty/
+dot_config/wezterm/
+{{ end }}
+
+{{ if .is_container }}
+# コンテナでは重い設定を除外
+dot_config/nvim/
+{{ end }}
+
+{{ if not .has_gui }}
+# GUI なし環境では除外
+dot_config/alacritty/
+dot_config/wezterm/
+{{ end }}
+
+# 常に除外
+README.md
+LICENSE
+.git/
+*.md

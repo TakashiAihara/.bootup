@@ -1,0 +1,88 @@
+# shared/data/tools.yaml
+# 開発ツール定義
+
+mise:
+  # 言語ランタイム
+  node:
+    version: "22"
+    default: true
+
+  python:
+    version: "3.12"
+    default: true
+
+  ruby:
+    version: "3.3"
+    default: false
+    home_only: true
+
+  go:
+    version: "1.23"
+    default: true
+
+  rust:
+    version: "stable"
+    default: true
+    home_only: true
+
+  deno:
+    version: "latest"
+    default: false
+    home_only: true
+
+  bun:
+    version: "latest"
+    default: false
+    home_only: true
+
+  java:
+    version: "21"
+    default: false
+    home_only: true
+
+  # ツール
+  terraform:
+    version: "latest"
+    server_only: true
+
+  kubectl:
+    version: "latest"
+    server_only: true
+
+  helm:
+    version: "latest"
+    server_only: true
+
+cloud:
+  # AWS
+  awscli:
+    install: true
+    areas:
+      - home
+      - gcp
+      - oci
+
+  # Google Cloud
+  gcloud:
+    install: true
+    areas:
+      - home
+      - gcp
+
+  # Oracle Cloud
+  oci_cli:
+    install: true
+    areas:
+      - home
+      - oci
+
+container:
+  docker:
+    install: true
+    exclude_arch:
+      - ubuntu_ct  # コンテナ内ではスキップ
+
+  docker_compose:
+    install: true
+    exclude_arch:
+      - ubuntu_ct

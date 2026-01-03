@@ -1,0 +1,81 @@
+# shared/data/area.yaml
+# AREA 別設定
+
+home:
+  network:
+    subnet: "192.168.1.0/24"
+    gateway: "192.168.1.1"
+    dns:
+      - "1.1.1.1"
+      - "8.8.8.8"
+
+  proxy:
+    enabled: false
+
+  git:
+    signing: true
+    gpg_key: ""  # 別途設定
+
+  features:
+    - personal_ssh_keys
+    - full_dev_tools
+    - gui_apps
+
+gcp:
+  network:
+    # GCP のネットワークは自動
+    dns:
+      - "169.254.169.254"  # GCP metadata server
+
+  proxy:
+    enabled: false
+
+  git:
+    signing: false
+
+  features:
+    - server_only
+    - gcloud_integration
+
+  metadata:
+    service_account: true
+    project_id_from_metadata: true
+
+  default_region: "asia-northeast1"
+  default_zone: "asia-northeast1-a"
+
+oci:
+  network:
+    dns:
+      - "169.254.169.254"
+
+  proxy:
+    enabled: false
+
+  git:
+    signing: false
+
+  features:
+    - server_only
+    - oci_integration
+
+  metadata:
+    instance_principal: true
+
+  default_region: "ap-tokyo-1"
+
+conoha:
+  network:
+    dns:
+      - "1.1.1.1"
+      - "8.8.8.8"
+
+  proxy:
+    enabled: false
+
+  git:
+    signing: false
+
+  features:
+    - server_only
+    - minimal_install

@@ -1,0 +1,32 @@
+#!/bin/bash
+# users/.chezmoiscripts/run_once_before_00-validate-env.sh.tmpl
+# ユーザー環境検証
+
+set -eu
+
+echo "=== Validating user environment ==="
+
+# ARCH と AREA のチェック
+ARCH="{{ .arch }}"
+AREA="{{ .area }}"
+
+echo "ARCH: ${ARCH}"
+echo "AREA: ${AREA}"
+echo "User: $(whoami)"
+echo "Home: ${HOME}"
+
+# root で実行されていないことを確認
+if [[ $EUID -eq 0 ]]; then
+    echo "✗ User configuration should not be run as root"
+    exit 1
+fi
+echo "✓ Running as regular user"
+
+# ホームディレクトリが存在することを確認
+if [[ ! -d "${HOME}" ]]; then
+    echo "✗ Home directory does not exist: ${HOME}"
+    exit 1
+fi
+echo "✓ Home directory exists"
+
+echo "=== User environment validation complete ==="

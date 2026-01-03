@@ -1,0 +1,285 @@
+#!/usr/bin/env bash
+# install - dotfiles セットアップエントリーポイント
+
+set -euo pipefail
+
+# ==================== 定数 ====================
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CHEZMOI_VERSION="2.47.0"
+
+# 有効な ARCH / AREA の一覧
+VALID_ARCHS=("wsl" "ubuntu" "ubuntu-dev" "ubuntu_ct" "ubuntu_nat" "mac")
+VALID_AREAS=("home" "gcp" "oci" "conoha")
+
+# カラー出力
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# ==================== ユーティリティ関数 ====================
+
+log_info() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+log_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+log_warn() {
+    echo -e "${YELLOW}[WARN]${NC} $1"
+}
+
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1" >&2
+}
+
+die() {
+    log_error "$1"
+    exit 1
+}
+
+# 配列に要素が含まれるか確認
+contains() {
+    local element="$1"
+    shift
+    local arr=("$@")
+    for e in "${arr[@]}"; do
+        [[ "$e" == "$element" ]] && return 0
+    done
+    return 1
+}
+
+# ==================== 環境検出 ====================
+
+detect_arch() {
+    if [[ -f /proc/sys/fs/binfmt_misc/WSLInterop ]]; then
+        echo "wsl"
+    elif [[ "$(uname -s)" == "Darwin" ]]; then
+        echo "mac"
+    elif [[ -f /run/systemd/container ]]; then
+        echo "ubuntu_ct"
+    else
+        echo "ubuntu"
+    fi
+}
+
+detect_area() {
+    # メタデータサービスから検出を試みる
+    
+    # GCP
+    if curl -sf -H "Metadata-Flavor: Google" \
+       "http://metadata.google.internal/computeMetadata/v1/instance/zone" \
+       --connect-timeout 1 &>/dev/null; then
+        echo "gcp"
+        return
+    fi
+    
+    # OCI
+    if curl -sf -H "Authorization: Bearer Oracle" \
+       "http://169.254.169.254/opc/v2/instance/" \
+       --connect-timeout 1 &>/dev/null; then
+        echo "oci"
+        return
+    fi
+    
+    # デフォルト
+    echo "home"
+}
+
+# ==================== chezmoi インストール ====================
+
+ensure_chezmoi() {
+    if command -v chezmoi &>/dev/null; then
+        local current_version
+        current_version=$(chezmoi --version | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+        log_info "chezmoi ${current_version} is already installed"
+        return 0
+    fi
+    
+    log_info "Installing chezmoi..."
+    
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        # macOS: Homebrew を使用
+        if command -v brew &>/dev/null; then
+            brew install chezmoi
+        else
+            # Homebrew がない場合は公式インストーラー
+            sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
+        fi
+    else
+        # Linux: 公式インストーラー
+        sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
+    fi
+    
+    log_success "chezmoi installed successfully"
+}
+
+# ==================== メイン処理 ====================
+
+usage() {
+    cat <<EOF
+Usage: ARCH=<arch> AREA=<area> ./install [OPTIONS] [COMMAND]
+
+Commands:
+    root    - Install root configuration only (requires root)
+    user    - Install user configuration only
+    all     - Install both root and user (default)
+
+Options:
+    -h, --help              Show this help
+    -n, --dry-run           Show what would be done
+    -v, --verbose           Verbose output
+    --target-user=USER      User to setup (when running as root)
+
+Environment Variables:
+    ARCH    - Architecture: ${VALID_ARCHS[*]}
+    AREA    - Area: ${VALID_AREAS[*]}
+
+Examples:
+    # WSL home environment
+    ARCH=wsl AREA=home ./install
+
+    # GCP Ubuntu server
+    ARCH=ubuntu AREA=gcp ./install
+
+    # macOS
+    ARCH=mac AREA=home ./install
+
+    # Root only
+    sudo ARCH=ubuntu AREA=oci ./install root
+
+    # With target user
+    sudo ARCH=ubuntu AREA=home TARGET_USER=takashi ./install all
+EOF
+}
+
+main() {
+    local dry_run=false
+    local verbose=false
+    local command="all"
+    
+    # 引数パース
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -h|--help)
+                usage
+                exit 0
+                ;;
+            -n|--dry-run)
+                dry_run=true
+                shift
+                ;;
+            -v|--verbose)
+                verbose=true
+                shift
+                ;;
+            --target-user=*)
+                export TARGET_USER="${1#*=}"
+                shift
+                ;;
+            root|user|all)
+                command="$1"
+                shift
+                ;;
+            *)
+                die "Unknown option: $1"
+                ;;
+        esac
+    done
+    
+    # ARCH 検証/検出
+    if [[ -z "${ARCH:-}" ]]; then
+        ARCH=$(detect_arch)
+        log_info "Auto-detected ARCH: ${ARCH}"
+    fi
+    
+    if ! contains "$ARCH" "${VALID_ARCHS[@]}"; then
+        die "Invalid ARCH: ${ARCH}. Valid values: ${VALID_ARCHS[*]}"
+    fi
+    export ARCH
+    
+    # AREA 検証/検出
+    if [[ -z "${AREA:-}" ]]; then
+        AREA=$(detect_area)
+        log_info "Auto-detected AREA: ${AREA}"
+    fi
+    
+    if ! contains "$AREA" "${VALID_AREAS[@]}"; then
+        die "Invalid AREA: ${AREA}. Valid values: ${VALID_AREAS[*]}"
+    fi
+    export AREA
+    
+    log_info "Configuration: ARCH=${ARCH}, AREA=${AREA}"
+    
+    # chezmoi インストール確認
+    ensure_chezmoi
+    
+    # chezmoi オプション構築
+    local chezmoi_opts=()
+    if [[ "$dry_run" == "true" ]]; then
+        chezmoi_opts+=("--dry-run")
+    fi
+    if [[ "$verbose" == "true" ]]; then
+        chezmoi_opts+=("--verbose")
+    fi
+    
+    # コマンド実行
+    case "$command" in
+        root)
+            if [[ $EUID -ne 0 ]]; then
+                die "root command requires root privileges. Use sudo."
+            fi
+            log_info "Applying root configuration..."
+            chezmoi init --source="${SCRIPT_DIR}/root" "${chezmoi_opts[@]}" --apply
+            log_success "Root configuration applied"
+            ;;
+        
+        user)
+            if [[ $EUID -eq 0 ]]; then
+                die "user command should not be run as root"
+            fi
+            log_info "Applying user configuration..."
+            chezmoi init --source="${SCRIPT_DIR}/users" "${chezmoi_opts[@]}" --apply
+            log_success "User configuration applied"
+            ;;
+        
+        all)
+            if [[ $EUID -eq 0 ]]; then
+                # root として実行
+                log_info "Applying root configuration..."
+                chezmoi init --source="${SCRIPT_DIR}/root" "${chezmoi_opts[@]}" --apply
+                log_success "Root configuration applied"
+                
+                # TARGET_USER が指定されていれば、そのユーザーの設定も適用
+                if [[ -n "${TARGET_USER:-}" ]]; then
+                    if id "$TARGET_USER" &>/dev/null; then
+                        log_info "Applying user configuration for ${TARGET_USER}..."
+                        su - "$TARGET_USER" -c "ARCH='$ARCH' AREA='$AREA' chezmoi init --source='${SCRIPT_DIR}/users' ${chezmoi_opts[*]} --apply"
+                        log_success "User configuration applied for ${TARGET_USER}"
+                    else
+                        log_warn "User ${TARGET_USER} does not exist, skipping user configuration"
+                    fi
+                else
+                    log_warn "TARGET_USER not set, skipping user configuration"
+                    log_info "To setup a user, run: TARGET_USER=<username> ./install all"
+                fi
+            else
+                # 一般ユーザーとして実行
+                log_info "Applying user configuration..."
+                chezmoi init --source="${SCRIPT_DIR}/users" "${chezmoi_opts[@]}" --apply
+                log_success "User configuration applied"
+                
+                log_warn "Root configuration skipped (not running as root)"
+                log_info "To apply root configuration, run: sudo ARCH=$ARCH AREA=$AREA ./install root"
+            fi
+            ;;
+    esac
+    
+    log_success "Setup complete!"
+}
+
+main "$@"

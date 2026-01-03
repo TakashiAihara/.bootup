@@ -1,0 +1,84 @@
+# ~/.gitconfig
+# Git 設定ファイル
+
+[user]
+    name = {{ .name }}
+    email = {{ .email }}
+
+[init]
+    defaultBranch = main
+
+[core]
+    editor = nvim
+    excludesfile = ~/.gitignore_global
+    pager = delta
+    autocrlf = input
+    quotepath = false
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true
+    light = false
+    side-by-side = true
+    line-numbers = true
+
+[merge]
+    conflictstyle = diff3
+
+[diff]
+    colorMoved = default
+
+[color]
+    ui = auto
+
+[pull]
+    rebase = true
+
+[push]
+    default = current
+    autoSetupRemote = true
+
+[fetch]
+    prune = true
+
+[rebase]
+    autoStash = true
+
+[alias]
+    # 基本
+    s = status
+    d = diff
+    co = checkout
+    br = branch
+    ci = commit
+    amend = commit --amend --no-edit
+    
+    # ログ
+    lg = log --oneline --graph --decorate -15
+    ll = log --pretty=format:'%C(yellow)%h%Creset %s %C(cyan)<%an>%Creset %C(green)(%cr)%Creset' -20
+    
+    # 便利系
+    unstage = reset HEAD --
+    last = log -1 HEAD
+    aliases = config --get-regexp alias
+    
+    # ブランチ管理
+    cleanup = "!git branch --merged | grep -v '\\*\\|main\\|master\\|develop' | xargs -n 1 git branch -d"
+
+[ghq]
+    root = ~/.ghq_src
+
+{{ if .is_home -}}
+[commit]
+    # ホーム環境では署名を有効にする（キー設定は別途）
+    # gpgsign = true
+{{ end -}}
+
+[credential]
+{{ if .is_mac -}}
+    helper = osxkeychain
+{{ else -}}
+    helper = cache --timeout=3600
+{{ end -}}

@@ -1,0 +1,60 @@
+# ~/.config/mise/config.toml
+# mise (旧 rtx) 設定ファイル
+
+[settings]
+# 自動許可を有効にする
+trusted_config_paths = ["~/.config/mise"]
+
+# 未解決のバージョンを許可
+legacy_version_file = true
+
+# ==================== グローバルツール ====================
+
+[tools]
+# Node.js
+node = "22"
+
+# Python
+python = "3.12"
+
+# Go
+go = "1.23"
+
+{{ if .is_home -}}
+# ホーム環境では追加の言語もインストール
+
+# Rust (rustup 経由なので、mise ではオプション)
+# rust = "stable"
+
+# Ruby
+ruby = "3.3"
+
+# Deno
+deno = "latest"
+
+# Bun
+bun = "latest"
+
+# Java
+java = "21"
+{{ end -}}
+
+{{ if .is_server -}}
+# サーバー環境ではインフラツールも追加
+
+# Terraform
+# terraform = "latest"
+
+# kubectl
+# kubectl = "latest"
+
+# Helm
+# helm = "latest"
+{{ end -}}
+
+# ==================== 環境設定 ====================
+
+[env]
+# mise が管理する PATH 以外の環境変数
+MISE_NODE_DEFAULT_PACKAGES_FILE = "~/.config/mise/default-npm-packages"
+MISE_PYTHON_DEFAULT_PACKAGES_FILE = "~/.config/mise/default-python-packages"

@@ -1,0 +1,65 @@
+#!/bin/bash
+# root/.chezmoiscripts/run_once_before_50-install-docker.sh.tmpl
+# Docker インストール
+
+set -eu
+
+{{ if .is_container -}}
+# コンテナ内では Docker をスキップ
+echo "=== Skipping Docker (running inside container) ==="
+exit 0
+{{ end -}}
+
+{{ if .is_mac -}}
+# macOS では Docker Desktop を Homebrew で入れるのでスキップ
+echo "=== Docker Desktop should be installed via Homebrew Cask ==="
+exit 0
+{{ end -}}
+
+{{ if not .is_ubuntu -}}
+exit 0
+{{ end -}}
+
+echo "=== Installing Docker ==="
+
+# すでにインストール済みの場合はスキップ
+if command -v docker &>/dev/null; then
+    echo "✓ Docker is already installed"
+    docker --version
+else
+    # Docker の公式 GPG キーを追加
+    install -m 0755 -d /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    chmod a+r /etc/apt/keyrings/docker.gpg
+
+    # リポジトリを追加
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+      tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    # Docker インストール
+    apt-get update
+    apt-get install -y \
+        docker-ce \
+        docker-ce-cli \
+        containerd.io \
+        docker-buildx-plugin \
+        docker-compose-plugin
+
+    echo "✓ Docker installed"
+fi
+
+# サービス有効化
+systemctl enable docker
+systemctl start docker
+
+{{ if .target_user -}}
+# ターゲットユーザーを docker グループに追加
+if [[ -n "{{ .target_user }}" ]]; then
+    usermod -aG docker "{{ .target_user }}"
+    echo "✓ Added {{ .target_user }} to docker group"
+fi
+{{ end -}}
+
+echo "=== Docker installation complete ==="

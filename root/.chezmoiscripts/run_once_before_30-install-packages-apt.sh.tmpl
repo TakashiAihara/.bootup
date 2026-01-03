@@ -1,0 +1,74 @@
+#!/bin/bash
+# root/.chezmoiscripts/run_once_before_30-install-packages-apt.sh.tmpl
+# APT パッケージのインストール
+
+set -eu
+
+{{ if not .is_ubuntu -}}
+# Ubuntu 系以外ではスキップ
+exit 0
+{{ end -}}
+
+echo "=== Installing APT packages ==="
+
+# パッケージリストの更新
+apt-get update
+
+# Common development packages
+{{ if not .is_container -}}
+apt-get install -y \
+    build-essential \
+    pkg-config \
+    libssl-dev \
+    libffi-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libncurses5-dev \
+    libncursesw5-dev \
+    xz-utils \
+    tk-dev \
+    libxml2-dev \
+    libxmlsec1-dev \
+    liblzma-dev
+{{ end -}}
+
+# CLI tools
+apt-get install -y \
+    jq \
+    tmux \
+    htop \
+    tree \
+    unzip \
+    zip \
+    rsync
+
+# Shell
+apt-get install -y \
+    zsh
+
+{{ if .is_server -}}
+# Server-specific packages
+apt-get install -y \
+    fail2ban \
+    ufw \
+    logrotate
+{{ end -}}
+
+{{ if .has_gui -}}
+# GUI-related packages
+apt-get install -y \
+    fonts-noto-cjk \
+    fonts-firacode \
+    xclip \
+    xsel
+{{ end -}}
+
+{{ if .is_wsl -}}
+# WSL-specific packages
+apt-get install -y \
+    wslu
+{{ end -}}
+
+echo "=== APT packages installed ==="

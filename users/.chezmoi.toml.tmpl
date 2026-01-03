@@ -1,0 +1,97 @@
+# users/.chezmoi.toml.tmpl
+# chezmoi 設定ファイルテンプレート（一般ユーザー用）
+
+{{/* ==================== 環境変数の取得 ==================== */}}
+
+{{- $arch := "" -}}
+{{- $area := "" -}}
+
+{{/* ARCH の決定 */}}
+{{- if env "ARCH" -}}
+{{-   $arch = env "ARCH" -}}
+{{- else if stat "/proc/sys/fs/binfmt_misc/WSLInterop" -}}
+{{-   $arch = "wsl" -}}
+{{- else if eq .chezmoi.os "darwin" -}}
+{{-   $arch = "mac" -}}
+{{- else -}}
+{{-   $arch = promptStringOnce . "arch" "Architecture (wsl/ubuntu/ubuntu-dev/ubuntu_ct/ubuntu_nat/mac)" -}}
+{{- end -}}
+
+{{/* AREA の決定 */}}
+{{- if env "AREA" -}}
+{{-   $area = env "AREA" -}}
+{{- else -}}
+{{-   $area = promptStringOnce . "area" "Area (home/gcp/oci/conoha)" -}}
+{{- end -}}
+
+{{/* ==================== 派生フラグの計算 ==================== */}}
+
+{{- $isWsl := eq $arch "wsl" -}}
+{{- $isMac := eq $arch "mac" -}}
+{{- $isUbuntu := or (eq $arch "ubuntu") (eq $arch "ubuntu-dev") (eq $arch "wsl") -}}
+{{- $isContainer := eq $arch "ubuntu_ct" -}}
+{{- $isServer := or (eq $area "gcp") (eq $area "oci") (eq $area "conoha") -}}
+{{- $isHome := eq $area "home" -}}
+{{- $hasGui := or $isMac (and $isWsl $isHome) (eq $arch "ubuntu-dev") -}}
+{{- $useHomebrew := or $isMac (and $isUbuntu (not $isContainer)) -}}
+
+{{/* ユーザー情報 */}}
+{{- $email := promptStringOnce . "email" "Email address" -}}
+{{- $name := promptStringOnce . "name" "Full name" -}}
+{{- $githubUser := promptStringOnce . "github_user" "GitHub username" -}}
+
+{{/* ==================== chezmoi 基本設定 ==================== */}}
+
+sourceDir = {{ .chezmoi.sourceDir | quote }}
+
+[edit]
+    command = "nvim"
+
+[diff]
+    pager = "delta"
+    exclude = ["scripts"]
+
+[merge]
+    command = "nvim"
+    args = ["-d", "{{ "{{" }} .Destination {{ "}}" }}", "{{ "{{" }} .Source {{ "}}" }}", "{{ "{{" }} .Target {{ "}}" }}"]
+
+{{/* ==================== データセクション ==================== */}}
+
+[data]
+    # 基本情報
+    arch = {{ $arch | quote }}
+    area = {{ $area | quote }}
+    
+    # フラグ
+    is_wsl = {{ $isWsl }}
+    is_mac = {{ $isMac }}
+    is_ubuntu = {{ $isUbuntu }}
+    is_container = {{ $isContainer }}
+    is_server = {{ $isServer }}
+    is_home = {{ $isHome }}
+    has_gui = {{ $hasGui }}
+    use_homebrew = {{ $useHomebrew }}
+    
+    # ユーザー情報
+    email = {{ $email | quote }}
+    name = {{ $name | quote }}
+    github_user = {{ $githubUser | quote }}
+    
+    # users 固有設定
+    is_root_config = false
+
+{{/* ==================== Git 設定 ==================== */}}
+
+[data.git]
+    email = {{ $email | quote }}
+    name = {{ $name | quote }}
+    defaultBranch = "main"
+
+{{/* ==================== インタープリタ設定 ==================== */}}
+
+[interpreters.sh]
+    command = "bash"
+    args = ["-eu"]
+
+[interpreters.py]
+    command = "python3"

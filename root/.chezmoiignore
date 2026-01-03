@@ -1,0 +1,14 @@
+# root/.chezmoiignore
+# 無視パターン（root 用）
+
+# ドキュメント
+README.md
+LICENSE
+*.md
+
+# Git
+.git/
+.gitignore
+
+# 開発用ファイル
+docs/

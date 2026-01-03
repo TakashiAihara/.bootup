@@ -1,0 +1,139 @@
+# ~/.config/starship.toml
+# Starship プロンプト設定
+
+# プロンプト全体の設定
+format = """
+$username\
+$hostname\
+$directory\
+$git_branch\
+$git_status\
+$python\
+$nodejs\
+$golang\
+$rust\
+$docker_context\
+$kubernetes\
+$line_break\
+$character"""
+
+# 右側プロンプト
+right_format = """$cmd_duration"""
+
+# 新しい行を追加
+add_newline = true
+
+# ==================== 基本モジュール ====================
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+vimcmd_symbol = "[❮](bold green)"
+
+[username]
+style_user = "bold yellow"
+style_root = "bold red"
+format = "[$user]($style)@"
+show_always = false
+
+[hostname]
+ssh_only = true
+format = "[$hostname](bold blue) "
+
+[directory]
+truncation_length = 4
+truncate_to_repo = true
+style = "bold cyan"
+read_only = " 🔒"
+
+[cmd_duration]
+min_time = 2_000
+format = "[$duration](bold yellow)"
+
+# ==================== Git ====================
+
+[git_branch]
+format = "[$symbol$branch(:$remote_branch)]($style) "
+symbol = " "
+style = "bold purple"
+
+[git_status]
+format = '([$all_status$ahead_behind]($style) )'
+style = "bold red"
+conflicted = "🏳"
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+untracked = "?${count}"
+stashed = "📦"
+modified = "!${count}"
+staged = "+${count}"
+renamed = "»${count}"
+deleted = "✘${count}"
+
+# ==================== 言語/ランタイム ====================
+
+[python]
+format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
+symbol = " "
+style = "bold yellow"
+detect_extensions = ["py"]
+detect_files = [".python-version", "pyproject.toml", "requirements.txt"]
+
+[nodejs]
+format = "[$symbol($version )]($style)"
+symbol = " "
+style = "bold green"
+detect_extensions = ["js", "ts", "mjs", "cjs"]
+detect_files = ["package.json", ".node-version"]
+
+[golang]
+format = "[$symbol($version )]($style)"
+symbol = " "
+style = "bold cyan"
+detect_extensions = ["go"]
+detect_files = ["go.mod", "go.sum"]
+
+[rust]
+format = "[$symbol($version )]($style)"
+symbol = " "
+style = "bold red"
+detect_extensions = ["rs"]
+detect_files = ["Cargo.toml"]
+
+# ==================== インフラ ====================
+
+{{ if not .is_container -}}
+[docker_context]
+format = "[$symbol$context]($style) "
+symbol = " "
+style = "blue bold"
+only_with_files = true
+detect_extensions = []
+detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
+
+{{ if or .is_server .is_home -}}
+[kubernetes]
+format = '[$symbol$context( \($namespace\))]($style) '
+symbol = "☸ "
+style = "bold blue"
+disabled = false
+detect_extensions = []
+detect_files = []
+detect_folders = []
+{{ end -}}
+{{ end -}}
+
+# ==================== 無効化 ====================
+
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[azure]
+disabled = true
+
+[package]
+disabled = true
