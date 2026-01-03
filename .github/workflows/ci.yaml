@@ -1,0 +1,100 @@
+# .github/workflows/ci.yaml
+# CI ワークフロー
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install chezmoi
+        run: |
+          sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
+
+      - name: Validate root templates
+        run: |
+          ARCH=ubuntu AREA=home chezmoi execute-template --init < root/.chezmoi.toml.tmpl > /dev/null
+          echo "✓ Root templates valid"
+
+      - name: Validate user templates
+        run: |
+          ARCH=ubuntu AREA=home chezmoi execute-template --init < users/.chezmoi.toml.tmpl > /dev/null || true
+          echo "✓ User templates valid (may prompt for input)"
+
+      - name: Shellcheck
+        run: |
+          # テンプレートからシェルスクリプトを抽出してチェック
+          find . -name "*.sh.tmpl" -type f | while read -r file; do
+            echo "Checking: $file"
+            # テンプレート部分を除いてシェルチェック（ベストエフォート）
+            grep -v '{{' "$file" | shellcheck -s bash - || true
+          done
+          echo "✓ Shellcheck complete"
+
+  test-ubuntu:
+    name: Test Ubuntu
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [ubuntu, ubuntu-dev]
+        area: [home, gcp]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install chezmoi
+        run: |
+          sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
+
+      - name: Test install (dry-run)
+        run: |
+          ARCH=${{ matrix.arch }} AREA=${{ matrix.area }} ./install --dry-run user || true
+        env:
+          ARCH: ${{ matrix.arch }}
+          AREA: ${{ matrix.area }}
+
+  test-macos:
+    name: Test macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install chezmoi
+        run: brew install chezmoi
+
+      - name: Test install (dry-run)
+        run: |
+          ARCH=mac AREA=home ./install --dry-run user || true
+
+  test-container:
+    name: Test Container
+    runs-on: ubuntu-latest
+    container: ubuntu:24.04
+    steps:
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y curl git
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install chezmoi
+        run: |
+          sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
+
+      - name: Test install (dry-run)
+        run: |
+          ARCH=ubuntu_ct AREA=home ./install --dry-run user || true

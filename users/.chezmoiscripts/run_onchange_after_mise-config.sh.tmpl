@@ -1,0 +1,33 @@
+#!/bin/bash
+# users/.chezmoiscripts/run_onchange_after_mise-config.sh.tmpl
+# mise 設定変更時にツールを再インストール
+
+# hash: {{ include "dot_config/mise/config.toml.tmpl" | sha256sum }}
+
+set -eu
+
+echo "=== mise configuration changed, updating tools ==="
+
+# mise のパスを通す
+{{ if .is_mac -}}
+if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
+{{ else if .use_homebrew -}}
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+{{ end -}}
+
+if ! command -v mise &>/dev/null; then
+    echo "mise not found, skipping"
+    exit 0
+fi
+
+# mise trust for current directory
+mise trust ~/.config/mise/config.toml 2>/dev/null || true
+
+# Install all tools defined in config
+mise install
+
+echo "=== mise tools updated ==="

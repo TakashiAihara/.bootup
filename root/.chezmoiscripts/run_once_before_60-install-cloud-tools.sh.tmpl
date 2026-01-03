@@ -1,0 +1,73 @@
+#!/bin/bash
+# root/.chezmoiscripts/run_once_before_60-install-cloud-tools.sh.tmpl
+# クラウドツールのインストール
+
+set -eu
+
+{{ if .is_container -}}
+# コンテナ内ではクラウドツールをスキップ
+echo "=== Skipping cloud tools (running inside container) ==="
+exit 0
+{{ end -}}
+
+echo "=== Installing cloud tools ==="
+
+{{ if or (eq .area "home") (eq .area "gcp") (eq .area "oci") -}}
+# ==================== AWS CLI ====================
+
+if ! command -v aws &>/dev/null; then
+    echo "Installing AWS CLI..."
+    {{ if .is_mac -}}
+    brew install awscli
+    {{ else -}}
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+    unzip -o /tmp/awscliv2.zip -d /tmp
+    /tmp/aws/install --update
+    rm -rf /tmp/aws /tmp/awscliv2.zip
+    {{ end -}}
+    echo "✓ AWS CLI installed"
+else
+    echo "✓ AWS CLI already installed"
+fi
+{{ end -}}
+
+{{ if or (eq .area "home") (eq .area "gcp") -}}
+# ==================== Google Cloud SDK ====================
+
+if ! command -v gcloud &>/dev/null; then
+    echo "Installing Google Cloud SDK..."
+    {{ if .is_mac -}}
+    brew install --cask google-cloud-sdk
+    {{ else -}}
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+    echo "deb https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+    apt-get update && apt-get install -y google-cloud-sdk
+    {{ end -}}
+    echo "✓ Google Cloud SDK installed"
+else
+    echo "✓ Google Cloud SDK already installed"
+fi
+{{ end -}}
+
+{{ if or (eq .area "home") (eq .area "oci") -}}
+# ==================== OCI CLI ====================
+
+if ! command -v oci &>/dev/null; then
+    echo "Installing OCI CLI..."
+    {{ if .is_mac -}}
+    brew install oci-cli
+    {{ else -}}
+    # OCI CLI インストール（Python ベース）
+    if command -v python3 &>/dev/null; then
+        bash -c "$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh)" -- --accept-all-defaults
+    else
+        echo "Python3 is required to install OCI CLI"
+    fi
+    {{ end -}}
+    echo "✓ OCI CLI installed"
+else
+    echo "✓ OCI CLI already installed"
+fi
+{{ end -}}
+
+echo "=== Cloud tools installation complete ==="

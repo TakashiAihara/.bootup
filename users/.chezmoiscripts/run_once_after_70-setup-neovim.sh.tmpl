@@ -1,0 +1,39 @@
+#!/bin/bash
+# users/.chezmoiscripts/run_once_after_70-setup-neovim.sh.tmpl
+# Neovim プラグインインストール
+
+set -eu
+
+echo "=== Setting up Neovim ==="
+
+{{ if .is_container -}}
+# コンテナ内では Neovim 設定をスキップ（vim を使用）
+echo "=== Skipping Neovim setup (container environment) ==="
+exit 0
+{{ end -}}
+
+# Neovim がインストールされているか確認
+if ! command -v nvim &>/dev/null; then
+    echo "Neovim is not installed, skipping setup"
+    exit 0
+fi
+
+echo "Neovim version: $(nvim --version | head -1)"
+
+# lazy.nvim のブートストラップ（初回実行時に自動で行われるが、念のため）
+LAZY_PATH="${HOME}/.local/share/nvim/lazy/lazy.nvim"
+
+if [[ ! -d "${LAZY_PATH}" ]]; then
+    echo "Installing lazy.nvim..."
+    git clone --filter=blob:none https://github.com/folke/lazy.nvim.git --branch=stable "${LAZY_PATH}"
+fi
+
+# プラグインの同期
+echo "Syncing plugins..."
+nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
+
+# Treesitter パーサーのインストール
+echo "Installing Treesitter parsers..."
+nvim --headless "+TSUpdateSync" +qa 2>/dev/null || true
+
+echo "=== Neovim setup complete ==="

@@ -1,0 +1,90 @@
+" ~/.vimrc
+" Vim 基本設定（Neovim が使えない環境用 fallback）
+
+" ==================== 基本設定 ====================
+
+set nocompatible              " Vi互換モード無効
+filetype plugin indent on     " ファイルタイプ検出
+syntax enable                 " シンタックスハイライト
+
+" ==================== エンコーディング ====================
+
+set encoding=utf-8
+set fileencoding=utf-8
+set fileencodings=utf-8,cp932,euc-jp,sjis
+
+" ==================== 表示 ====================
+
+set number                    " 行番号表示
+set relativenumber            " 相対行番号
+set cursorline                " カーソル行ハイライト
+set showmatch                 " 対応括弧ハイライト
+set laststatus=2              " ステータスライン常時表示
+set showcmd                   " コマンド表示
+set ruler                     " カーソル位置表示
+set wildmenu                  " コマンド補完
+
+" ==================== インデント ====================
+
+set expandtab                 " タブをスペースに
+set tabstop=2                 " タブ幅
+set shiftwidth=2              " インデント幅
+set softtabstop=2             " 編集時タブ幅
+set autoindent                " 自動インデント
+set smartindent               " スマートインデント
+
+" ==================== 検索 ====================
+
+set hlsearch                  " 検索ハイライト
+set incsearch                 " インクリメンタル検索
+set ignorecase                " 大文字小文字無視
+set smartcase                 " 大文字含む場合は区別
+
+" ==================== 編集 ====================
+
+set backspace=indent,eol,start  " バックスペース
+set hidden                      " バッファを閉じずに隠す
+set clipboard=unnamedplus       " クリップボード共有
+set mouse=a                     " マウス有効
+
+" ==================== ファイル ====================
+
+set nobackup                  " バックアップなし
+set noswapfile                " スワップなし
+set autoread                  " 外部変更の自動読み込み
+
+" ==================== キーマップ ====================
+
+" リーダーキー
+let mapleader = " "
+
+" jk でノーマルモード
+inoremap jk <Esc>
+inoremap jj <Esc>
+
+" 検索ハイライトクリア
+nnoremap <Esc> :nohlsearch<CR>
+
+" 保存
+nnoremap <leader>w :w<CR>
+
+" ウィンドウ移動
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+" バッファ移動
+nnoremap <S-h> :bprevious<CR>
+nnoremap <S-l> :bnext<CR>
+
+" ==================== カラー ====================
+
+if has('termguicolors')
+  set termguicolors
+endif
+
+set background=dark
+
+" カラースキーム（利用可能な場合）
+silent! colorscheme desert

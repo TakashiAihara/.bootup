@@ -1,0 +1,31 @@
+#!/bin/bash
+# root/.chezmoiscripts/run_once_after_90-setup-user.sh.tmpl
+# 一般ユーザーのセットアップ呼び出し
+
+set -eu
+
+echo "=== User setup phase ==="
+
+{{ if .target_user -}}
+TARGET_USER="{{ .target_user }}"
+
+if [[ -n "${TARGET_USER}" ]]; then
+    if id "${TARGET_USER}" &>/dev/null; then
+        echo "Target user: ${TARGET_USER}"
+        
+        # ユーザーの chezmoi 設定を適用
+        echo "Note: User configuration should be applied separately"
+        echo "Run: su - ${TARGET_USER} -c 'ARCH={{ .arch }} AREA={{ .area }} chezmoi init --source=/path/to/users --apply'"
+    else
+        echo "Warning: User ${TARGET_USER} does not exist"
+    fi
+else
+    echo "Note: No target user specified"
+    echo "To setup a user, run with TARGET_USER=<username>"
+fi
+{{ else -}}
+echo "Note: No target user specified"
+echo "To setup a user, run with TARGET_USER=<username>"
+{{ end -}}
+
+echo "=== Root setup complete ==="

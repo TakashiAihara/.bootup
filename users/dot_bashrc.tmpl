@@ -1,0 +1,104 @@
+# ~/.bashrc
+# Bash 設定（fallback）
+
+# インタラクティブでなければ終了
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+# ==================== 基本設定 ====================
+
+# ヒストリ
+HISTSIZE=10000
+HISTFILESIZE=20000
+HISTCONTROL=ignoreboth:erasedups
+shopt -s histappend
+
+# 画面サイズ更新
+shopt -s checkwinsize
+
+# ==================== パス ====================
+
+# Homebrew
+{{ if .is_mac -}}
+if [ -x /opt/homebrew/bin/brew ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
+{{ else if .use_homebrew -}}
+if [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+{{ end -}}
+
+export PATH="${HOME}/.local/bin:${PATH}"
+
+# ==================== プロンプト ====================
+
+# カラーサポート
+if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    PS1='\u@\h:\w\$ '
+fi
+
+# Starship（利用可能な場合）
+if command -v starship &>/dev/null; then
+    eval "$(starship init bash)"
+fi
+
+# ==================== エイリアス ====================
+
+# ls
+if command -v eza &>/dev/null; then
+    alias ls='eza --icons'
+    alias ll='eza -la --icons --git'
+    alias la='eza -a --icons'
+else
+    alias ls='ls --color=auto'
+    alias ll='ls -la'
+    alias la='ls -a'
+fi
+
+# grep
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
+# 安全なファイル操作
+alias rm='rm -i'
+alias mv='mv -i'
+alias cp='cp -i'
+
+# Git
+alias g='git'
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git pull'
+
+# ==================== ツール初期化 ====================
+
+# mise
+if command -v mise &>/dev/null; then
+    eval "$(mise activate bash)"
+fi
+
+# direnv
+if command -v direnv &>/dev/null; then
+    eval "$(direnv hook bash)"
+fi
+
+# zoxide
+if command -v zoxide &>/dev/null; then
+    eval "$(zoxide init bash)"
+fi
+
+# ==================== ローカル設定 ====================
+
+if [ -f "${HOME}/.bashrc.local" ]; then
+    . "${HOME}/.bashrc.local"
+fi

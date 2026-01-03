@@ -1,0 +1,5 @@
+# lazy-lock.json は環境ごとに異なるので管理しない
+lazy-lock.json
+
+# プラグインのキャッシュ
+plugin/

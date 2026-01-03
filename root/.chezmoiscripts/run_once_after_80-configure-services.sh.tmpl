@@ -1,0 +1,73 @@
+#!/bin/bash
+# root/.chezmoiscripts/run_once_after_80-configure-services.sh.tmpl
+# サービス設定・有効化
+
+set -eu
+
+{{ if .is_container -}}
+# コンテナ内では systemd が使えないのでスキップ
+echo "=== Skipping service configuration (running inside container) ==="
+exit 0
+{{ end -}}
+
+{{ if .is_mac -}}
+# macOS では systemd は使用しない
+echo "=== Skipping service configuration (macOS) ==="
+exit 0
+{{ end -}}
+
+echo "=== Configuring services ==="
+
+# ==================== Docker ====================
+
+{{ if not .is_container -}}
+if command -v docker &>/dev/null; then
+    if systemctl is-enabled docker &>/dev/null; then
+        echo "✓ Docker service already enabled"
+    else
+        echo "Enabling Docker service..."
+        systemctl enable docker
+        systemctl start docker
+        echo "✓ Docker service enabled and started"
+    fi
+fi
+{{ end -}}
+
+{{ if .is_server -}}
+# ==================== fail2ban ====================
+
+if command -v fail2ban-server &>/dev/null; then
+    if systemctl is-enabled fail2ban &>/dev/null; then
+        echo "✓ fail2ban already enabled"
+    else
+        echo "Enabling fail2ban..."
+        systemctl enable fail2ban
+        systemctl start fail2ban
+        echo "✓ fail2ban enabled and started"
+    fi
+fi
+
+# ==================== UFW ====================
+
+if command -v ufw &>/dev/null; then
+    # UFW の状態確認
+    if ufw status | grep -q "Status: active"; then
+        echo "✓ UFW already active"
+    else
+        echo "Configuring UFW..."
+        
+        # デフォルトポリシー
+        ufw default deny incoming
+        ufw default allow outgoing
+        
+        # SSH を許可
+        ufw allow ssh
+        
+        # 有効化
+        echo "y" | ufw enable
+        echo "✓ UFW configured and enabled"
+    fi
+fi
+{{ end -}}
+
+echo "=== Service configuration complete ==="

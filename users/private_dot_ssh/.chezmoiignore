@@ -1,0 +1,26 @@
+# SSH 秘密鍵は chezmoi では管理しない
+# 1Password, Bitwarden などの外部ツールで管理
+
+# 秘密鍵
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+id_ecdsa
+id_ecdsa.pub
+*.pem
+github
+github.pub
+gcp
+gcp.pub
+oci
+oci.pub
+home
+home.pub
+
+# 既知のホスト（環境ごとに異なる）
+known_hosts
+known_hosts.old
+
+# エージェント関連
+agent.*

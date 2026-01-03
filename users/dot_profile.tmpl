@@ -1,0 +1,53 @@
+# ~/.profile
+# ログインシェル設定（bash/sh 互換）
+
+# XDG Base Directory
+export XDG_CONFIG_HOME="${HOME}/.config"
+export XDG_DATA_HOME="${HOME}/.local/share"
+export XDG_CACHE_HOME="${HOME}/.cache"
+export XDG_STATE_HOME="${HOME}/.local/state"
+
+# エディタ
+export EDITOR="nvim"
+export VISUAL="nvim"
+
+# ロケール
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+
+# パス
+export PATH="${HOME}/.local/bin:${PATH}"
+
+# Homebrew
+{{ if .is_mac -}}
+if [ -x /opt/homebrew/bin/brew ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
+{{ else if .use_homebrew -}}
+if [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+{{ end -}}
+
+# mise shims
+if [ -d "${HOME}/.local/share/mise/shims" ]; then
+    export PATH="${HOME}/.local/share/mise/shims:${PATH}"
+fi
+
+# Go
+export GOPATH="${HOME}/go"
+export PATH="${GOPATH}/bin:${PATH}"
+
+# Rust
+if [ -f "${HOME}/.cargo/env" ]; then
+    . "${HOME}/.cargo/env"
+fi
+
+# zsh をデフォルトシェルとして起動（インタラクティブな場合）
+if [ -n "$BASH_VERSION" ] && [ -z "$ZSH_VERSION" ]; then
+    if [ -x "$(command -v zsh)" ] && [ -t 0 ]; then
+        exec zsh -l
+    fi
+fi

@@ -1,0 +1,35 @@
+# ~/.ssh/config.d/20-servers
+# サーバー接続設定
+
+{{ if .is_home -}}
+# ==================== ホームサーバー ====================
+
+# Proxmox (例)
+# Host proxmox
+#     HostName 192.168.1.x
+#     User root
+#     IdentityFile ~/.ssh/home
+
+# NAS (例)
+# Host nas
+#     HostName 192.168.1.x
+#     User admin
+#     IdentityFile ~/.ssh/home
+
+# ==================== クラウドサーバー ====================
+
+# GCP インスタンス (例)
+# Host gcp-*
+#     User {{ .github_user }}
+#     IdentityFile ~/.ssh/gcp
+#     ProxyCommand gcloud compute start-iap-tunnel %h %p --listen-on-stdin --project=YOUR_PROJECT
+
+# OCI インスタンス (例)
+# Host oci-*
+#     User ubuntu
+#     IdentityFile ~/.ssh/oci
+
+{{ else -}}
+# サーバー環境では通常、他サーバーへの接続設定は最小限
+
+{{ end -}}
