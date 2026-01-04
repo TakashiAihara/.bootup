@@ -52,7 +52,8 @@ fi
 {{ if or (eq .area "home") (eq .area "oci") -}}
 # ==================== OCI CLI ====================
 
-if ! command -v oci &>/dev/null; then
+# OCI CLI は ~/bin/oci にインストールされる
+if ! command -v oci &>/dev/null && [[ ! -x "$HOME/bin/oci" ]]; then
     echo "Installing OCI CLI..."
     {{ if .is_mac -}}
     brew install oci-cli
