@@ -1,0 +1,92 @@
+#!/bin/bash
+# root/.chezmoiscripts/run_once_after_85-configure-ssh.sh.tmpl
+# SSH サーバー・クライアント設定
+
+set -eu
+
+{{ if .is_mac -}}
+# macOS では /etc/ssh の設定は通常変更しない
+echo "=== Skipping SSH configuration (macOS) ==="
+exit 0
+{{ end -}}
+
+echo "=== Configuring SSH ==="
+
+# ==================== sshd_config (サーバー) ====================
+
+SSHD_DROPIN_DIR="/etc/ssh/sshd_config.d"
+SSHD_DROPIN_FILE="${SSHD_DROPIN_DIR}/99-custom.conf"
+
+mkdir -p "${SSHD_DROPIN_DIR}"
+
+cat > "${SSHD_DROPIN_FILE}" << 'SSHD_EOF'
+# Custom SSH server configuration
+# Managed by chezmoi - do not edit manually
+
+# Authentication
+PermitRootLogin prohibit-password
+PubkeyAuthentication yes
+PasswordAuthentication no
+ChallengeResponseAuthentication no
+UsePAM yes
+
+# Forwarding
+AllowAgentForwarding yes
+AllowTcpForwarding yes
+GatewayPorts yes
+X11Forwarding yes
+
+# Connection keepalive
+TCPKeepAlive yes
+ClientAliveInterval 60
+ClientAliveCountMax 3
+SSHD_EOF
+
+chmod 644 "${SSHD_DROPIN_FILE}"
+echo "✓ sshd_config.d/99-custom.conf created"
+
+# ==================== ssh_config (クライアント) ====================
+
+SSH_DROPIN_DIR="/etc/ssh/ssh_config.d"
+SSH_DROPIN_FILE="${SSH_DROPIN_DIR}/99-custom.conf"
+
+mkdir -p "${SSH_DROPIN_DIR}"
+
+cat > "${SSH_DROPIN_FILE}" << 'SSH_EOF'
+# Custom SSH client configuration
+# Managed by chezmoi - do not edit manually
+
+Host *
+    # Host key checking
+    StrictHostKeyChecking no
+    HashKnownHosts yes
+
+    # Connection keepalive
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+
+    # Forwarding
+    GatewayPorts yes
+
+    # Authentication
+    GSSAPIAuthentication yes
+SSH_EOF
+
+chmod 644 "${SSH_DROPIN_FILE}"
+echo "✓ ssh_config.d/99-custom.conf created"
+
+# ==================== sshd restart ====================
+
+if command -v systemctl &>/dev/null && systemctl is-active sshd &>/dev/null; then
+    echo "Restarting sshd..."
+    systemctl restart sshd
+    echo "✓ sshd restarted"
+elif command -v systemctl &>/dev/null && systemctl is-active ssh &>/dev/null; then
+    echo "Restarting ssh..."
+    systemctl restart ssh
+    echo "✓ ssh restarted"
+else
+    echo "Note: sshd not running or systemctl not available, skipping restart"
+fi
+
+echo "=== SSH configuration complete ==="
