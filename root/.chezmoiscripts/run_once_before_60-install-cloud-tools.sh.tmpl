@@ -49,26 +49,4 @@ else
 fi
 {{ end -}}
 
-{{ if or (eq .area "home") (eq .area "oci") -}}
-# ==================== OCI CLI ====================
-
-# OCI CLI は ~/bin/oci にインストールされる
-if ! command -v oci &>/dev/null && [[ ! -x "$HOME/bin/oci" ]]; then
-    echo "Installing OCI CLI..."
-    {{ if .is_mac -}}
-    brew install oci-cli
-    {{ else -}}
-    # OCI CLI インストール（Python ベース）
-    if command -v python3 &>/dev/null; then
-        bash -c "$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh)" -- --accept-all-defaults
-    else
-        echo "Python3 is required to install OCI CLI"
-    fi
-    {{ end -}}
-    echo "✓ OCI CLI installed"
-else
-    echo "✓ OCI CLI already installed"
-fi
-{{ end -}}
-
 echo "=== Cloud tools installation complete ==="
