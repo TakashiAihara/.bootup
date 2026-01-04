@@ -124,4 +124,10 @@ if ! command -v yq &>/dev/null; then
     chmod +x /usr/local/bin/yq
 fi
 
+# ollama (LLM ローカル実行)
+if ! command -v ollama &>/dev/null; then
+    echo "Installing ollama..."
+    curl -fsSL https://ollama.com/install.sh | sh
+fi
+
 echo "=== CLI tools installation complete ==="

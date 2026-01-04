@@ -11,52 +11,40 @@ legacy_version_file = true
 # ==================== グローバルツール ====================
 
 [tools]
-# Node.js
+# ==================== 言語 ====================
 node = "22"
-
-# Python
 python = "3.12"
-
-# Go
 go = "1.23"
-
-# Terminal multiplexer
-zellij = "latest"
-
-# GitHub Actions local runner
-act = "latest"
-
-{{ if .is_home -}}
-# ホーム環境では追加の言語もインストール
-
-# Rust (rustup 経由なので、mise ではオプション)
-# rust = "stable"
-
-# Ruby
 ruby = "3.3"
-
-# Deno
 deno = "latest"
-
-# Bun
 bun = "latest"
-
-# Java
 java = "21"
-{{ end -}}
+dart = "latest"
+zig = "latest"
 
-{{ if .is_server -}}
-# サーバー環境ではインフラツールも追加
+# ==================== Python ツール ====================
+poetry = "latest"
+uv = "latest"
 
-# Terraform
-# terraform = "latest"
+# ==================== CLI ツール ====================
+zellij = "latest"
+act = "latest"
+rclone = "latest"
+yt-dlp = "latest"
+xq = "latest"
+yj = "latest"
 
-# kubectl
-# kubectl = "latest"
+# ==================== インフラ/クラウド ====================
+helm = "latest"
+grpcurl = "latest"
+hasura-cli = "latest"
 
-# Helm
-# helm = "latest"
-{{ end -}}
+# ==================== データベース ====================
+mongosh = "latest"
+postgres = "latest"
+
+# ==================== Flutter ====================
+flutter = "latest"
 
 # ==================== 環境設定 ====================
 

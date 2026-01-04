@@ -6,9 +6,10 @@
 
 | 項目 | 状態 | 備考 |
 |------|------|------|
-| 基本パッケージ | ✅ | curl, git, zsh 等 |
+| 基本パッケージ | ✅ | curl, git, zsh, vim, ffmpeg, redis-tools 等 |
+| Locale/Timezone | ✅ | ja_JP.UTF-8, Asia/Tokyo |
 | mise | ✅ | バイナリをコピー（symlink ではない） |
-| CLI ツール | ✅ | starship, fzf, ghq, lazygit, delta, yq |
+| CLI ツール | ✅ | starship, fzf, ghq, lazygit, delta, yq, ollama |
 | Rust ツール (cargo) | ✅ | rg, fd, bat, eza, zoxide（/usr/local/bin にコピー） |
 | Docker | ✅ | docker + compose |
 | SSH 設定 | ✅ | sshd/ssh drop-in 設定 |
@@ -27,7 +28,7 @@
 | starship | ✅ | プロンプト設定 |
 | nvim | ✅ | lazy.nvim + plugins |
 | gh | ✅ | GitHub CLI 設定 |
-| mise | ✅ | node, python, go, zellij, act |
+| mise | ✅ | 多数のツール (下記参照) |
 | alacritty | ✅ | macOS only |
 | karabiner | ✅ | macOS only |
 | fontconfig | ✅ | WSL only |
@@ -37,17 +38,67 @@
 
 ### mise でインストールされるツール
 
+#### 言語
+| ツール | バージョン |
+|--------|-----------|
+| node | 22 |
+| python | 3.12 |
+| go | 1.23 |
+| ruby | 3.3 |
+| deno | latest |
+| bun | latest |
+| java | 21 |
+| dart | latest |
+| zig | latest |
+
+#### Python ツール
+| ツール | バージョン |
+|--------|-----------|
+| poetry | latest |
+| uv | latest |
+
+#### CLI ツール
 | ツール | バージョン | 備考 |
 |--------|-----------|------|
-| node | 22 | |
-| python | 3.12 | |
-| go | 1.23 | |
 | zellij | latest | ターミナルマルチプレクサ |
 | act | latest | GitHub Actions ローカル実行 |
-| ruby | 3.3 | home 環境のみ |
-| deno | latest | home 環境のみ |
-| bun | latest | home 環境のみ |
-| java | 21 | home 環境のみ |
+| rclone | latest | クラウドストレージ同期 |
+| yt-dlp | latest | 動画ダウンロード |
+| xq | latest | XML 処理 |
+| yj | latest | YAML/JSON 変換 |
+
+#### インフラ/クラウド
+| ツール | バージョン |
+|--------|-----------|
+| helm | latest |
+| grpcurl | latest |
+| hasura-cli | latest |
+
+#### データベース
+| ツール | バージョン |
+|--------|-----------|
+| mongosh | latest |
+| postgres | latest |
+
+#### モバイル/Flutter
+| ツール | バージョン |
+|--------|-----------|
+| flutter | latest |
+
+### APT でインストールされるツール
+
+| ツール | 備考 |
+|--------|------|
+| vim | エディタ |
+| ffmpeg | 動画処理 |
+| redis-tools | redis-cli 等 |
+| locales | ロケール設定 |
+
+### root スクリプトでインストール
+
+| ツール | 備考 |
+|--------|------|
+| ollama | LLM ローカル実行 |
 
 ### zinit プラグイン
 
@@ -65,3 +116,4 @@
 1. **symlink 問題**: root でインストールしたツールを一般ユーザーが使えるよう、symlink ではなくコピーに変更
 2. **cargo install**: Rust ツールは cargo でインストール後、/usr/local/bin にコピー
 3. **実行権限**: Claude hooks は `executable_` プレフィックスで実行権限付与
+4. **Locale**: ja_JP.UTF-8 に設定、Timezone は Asia/Tokyo
