@@ -1252,7 +1252,7 @@ ARCH=<arch> AREA=<area> ./install
 ARCH=wsl AREA=home ./install
 
 # 例: GCP Ubuntu (root で実行し、ユーザーも設定)
-sudo ARCH=ubuntu AREA=gcp TARGET_USER=takashi ./install
+sudo ARCH=ubuntu AREA=gcp TARGET_USER=<username> ./install
 
 # 例: macOS
 ARCH=mac AREA=home ./install

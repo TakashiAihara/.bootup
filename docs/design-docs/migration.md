@@ -1190,7 +1190,7 @@ Examples:
     sudo ARCH=ubuntu AREA=oci ./install root
 
     # With target user
-    sudo ARCH=ubuntu AREA=home TARGET_USER=takashi ./install all
+    sudo ARCH=ubuntu AREA=home TARGET_USER=<username> ./install all
 EOF
 }
 

@@ -1,0 +1,144 @@
+# Work Log: Remove Homebrew Dependency for Ubuntu
+
+**Date:** 2026-01-04
+**Commit:** 1c3a59b
+**Type:** Architecture Change
+
+## Summary
+
+Removed Homebrew dependency for Ubuntu environments to enable true one-command installation without requiring manual package manager setup. Ubuntu systems now use apt and official installers directly.
+
+## Background
+
+### Original Issue
+The initial `.bootup` implementation had Ubuntu depending on Homebrew (Linuxbrew), which:
+- Required root privileges for installation
+- Failed when run as root (Homebrew doesn't allow root execution)
+- Contradicted the goal of one-command automated setup
+- Added unnecessary complexity for Ubuntu users
+
+### Comparison with Existing System
+The previous dotbot-based system (`~/.install` on remote machines) successfully used:
+- `apt` for system packages
+- Official installers for individual tools (80+ scripts in `steps/shell/`)
+- No Homebrew dependency on Linux
+
+## Changes Made
+
+### 1. Configuration Template Changes
+
+**Files Modified:**
+- `root/.chezmoi.toml.tmpl`
+- `users/.chezmoi.toml.tmpl`
+
+**Change:**
+```diff
+-{{- $useHomebrew := or $isMac (and $isUbuntu (not $isContainer)) -}}
++{{- $useHomebrew := $isMac -}}
+```
+
+**Impact:** `use_homebrew` flag is now `true` only for macOS, `false` for all Linux/Ubuntu variants.
+
+### 2. New Installation Scripts
+
+#### a. mise Installer (`run_once_before_25-install-mise.sh.tmpl`)
+
+**Purpose:** Install mise (modern version manager) using official installer
+
+**Method:**
+```bash
+curl https://mise.run | sh
+```
+
+**Features:**
+- Skip if Homebrew environment (macOS)
+- Skip if non-Ubuntu
+- Idempotent (checks if already installed)
+- Creates symlink to `/usr/local/bin/mise`
+
+#### b. CLI Tools Installer (`run_once_before_35-install-cli-tools.sh.tmpl`)
+
+**Purpose:** Install essential CLI development tools without Homebrew
+
+**Tools Installed:**
+1. **GitHub CLI (gh)** - via apt repository
+2. **starship** - via official installer
+3. **neovim** - via PPA (neovim-ppa/unstable)
+4. **fzf** - via git clone + manual install
+5. **ghq** - via GitHub releases
+6. **lazygit** - via GitHub releases
+7. **delta (git-delta)** - via GitHub releases
+8. **Rust-based tools** - via cargo:
+   - ripgrep
+   - fd-find
+   - bat
+   - eza
+   - zoxide
+
+**Method:**
+- Each tool has version detection via GitHub API
+- Downloads latest release binaries
+- Installs to `/usr/local/bin`
+- Fully automated, no user interaction required
+
+### 3. Existing Scripts (Unchanged)
+
+The following scripts already had proper guards:
+- `run_once_before_20-install-homebrew.sh.tmpl` - Skips if `!use_homebrew`
+- `run_once_before_31-install-packages-brew.sh.tmpl` - Skips if `!use_homebrew`
+
+## Execution Flow
+
+### macOS (unchanged)
+1. Install Homebrew
+2. Install packages via `brew install`
+3. Install language runtimes via `mise` (from Homebrew)
+
+### Ubuntu (new flow)
+1. Install base packages via apt (step 30)
+2. **Install mise via official installer (step 25)**
+3. **Install CLI tools via official installers (step 35)**
+4. Install Docker (step 50)
+5. Install cloud tools (step 60)
+
+## Benefits
+
+1. **True One-Command Setup** - No manual Homebrew installation needed
+2. **No Root/User Conflicts** - All installers work correctly with sudo
+3. **Faster Installation** - Official binaries install faster than compiling via Homebrew
+4. **Simpler Maintenance** - No Homebrew-specific issues on Linux
+5. **Consistent with Best Practices** - Uses native package manager (apt) for base system
+
+## Testing Recommendations
+
+Test on clean Ubuntu installations:
+```bash
+# Ubuntu 24.04 LTS
+sudo ARCH=ubuntu AREA=home ./install root
+
+# Ubuntu Server (GCP)
+sudo ARCH=ubuntu AREA=gcp ./install root
+
+# Ubuntu in container
+sudo ARCH=ubuntu_ct AREA=home ./install root
+```
+
+Verify:
+- ✓ All tools install successfully
+- ✓ No Homebrew installation attempted
+- ✓ mise and CLI tools are in PATH
+- ✓ Scripts are idempotent (safe to run multiple times)
+
+## Future Work
+
+Consider adding:
+1. Additional CLI tools as needed (from existing dotbot implementation)
+2. Version pinning for critical tools
+3. Fallback mechanisms if official installers change
+4. Verification checksums for downloaded binaries
+
+## References
+
+- Original dotbot implementation: `~/.install` on production machines
+- Design document: `docs/design-docs/migration.md`
+- Requirements document: `docs/design-docs/requirements.md`
