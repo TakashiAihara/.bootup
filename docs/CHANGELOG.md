@@ -10,7 +10,7 @@
 | Locale/Timezone | ✅ | ja_JP.UTF-8, Asia/Tokyo |
 | mise | ✅ | バイナリをコピー（symlink ではない） |
 | CLI ツール | ✅ | starship, fzf, ghq, lazygit, delta, yq, ollama |
-| Rust ツール (cargo) | ✅ | rg, fd, bat, eza, zoxide（/usr/local/bin にコピー） |
+| Rust ツール (cargo) | ✅ | fd, bat, eza, zoxide（/usr/local/bin にコピー） |
 | Docker | ✅ | docker + compose |
 | SSH 設定 | ✅ | sshd/ssh drop-in 設定 |
 | UFW | ✅ | 無効化（SG で管理） |
@@ -66,6 +66,7 @@
 | yt-dlp | latest | 動画ダウンロード |
 | xq | latest | XML 処理 |
 | yj | latest | YAML/JSON 変換 |
+| ripgrep | latest | 高速 grep (rg コマンド) |
 
 #### インフラ/クラウド
 | ツール | バージョン |

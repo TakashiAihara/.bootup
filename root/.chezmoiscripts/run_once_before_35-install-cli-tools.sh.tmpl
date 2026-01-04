@@ -84,7 +84,6 @@ fi
 # Rust-based tools (via cargo)
 RUST_TOOLS_TO_INSTALL=()
 
-command -v rg &>/dev/null || RUST_TOOLS_TO_INSTALL+=("ripgrep")
 command -v fd &>/dev/null || RUST_TOOLS_TO_INSTALL+=("fd-find")
 command -v bat &>/dev/null || RUST_TOOLS_TO_INSTALL+=("bat")
 command -v eza &>/dev/null || RUST_TOOLS_TO_INSTALL+=("eza")
@@ -108,7 +107,7 @@ if [[ ${#RUST_TOOLS_TO_INSTALL[@]} -gt 0 ]]; then
     done
 
     # インストール済みツールを /usr/local/bin にコピー（シンボリックリンクだと root 以外がアクセスできない）
-    for binary in rg fd bat eza zoxide; do
+    for binary in fd bat eza zoxide; do
         if [[ -f "$HOME/.cargo/bin/${binary}" ]]; then
             cp "$HOME/.cargo/bin/${binary}" "/usr/local/bin/${binary}"
             chmod +x "/usr/local/bin/${binary}"
