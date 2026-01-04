@@ -1,0 +1,109 @@
+#!/bin/bash
+# root/.chezmoiscripts/run_once_before_35-install-cli-tools.sh.tmpl
+# CLIツールのインストール（Ubuntu/Linux用）
+
+set -eu
+
+{{ if .use_homebrew -}}
+# Homebrew環境ではスキップ（brew経由でインストール）
+echo "=== Skipping CLI tools (will be installed via Homebrew) ==="
+exit 0
+{{ end -}}
+
+{{ if not .is_ubuntu -}}
+# Ubuntu以外ではスキップ
+echo "=== Skipping CLI tools (Ubuntu only) ==="
+exit 0
+{{ end -}}
+
+echo "=== Installing CLI tools ==="
+
+# GitHub CLI (gh)
+if ! command -v gh &>/dev/null; then
+    echo "Installing GitHub CLI..."
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+    chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    apt-get update
+    apt-get install -y gh
+fi
+
+# starship
+if ! command -v starship &>/dev/null; then
+    echo "Installing starship..."
+    curl -sS https://starship.rs/install.sh | sh -s -- -y
+fi
+
+# neovim (PPA)
+if ! command -v nvim &>/dev/null; then
+    echo "Installing neovim..."
+    add-apt-repository -y ppa:neovim-ppa/unstable
+    apt-get update
+    apt-get install -y neovim
+fi
+
+# fzf
+if ! command -v fzf &>/dev/null; then
+    echo "Installing fzf..."
+    git clone --depth 1 https://github.com/junegunn/fzf.git /opt/fzf
+    /opt/fzf/install --bin
+    ln -sf /opt/fzf/bin/fzf /usr/local/bin/fzf
+fi
+
+# ghq
+if ! command -v ghq &>/dev/null; then
+    echo "Installing ghq..."
+    GHQ_VERSION=$(curl -s https://api.github.com/repos/x-motemen/ghq/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+    curl -fsSL "https://github.com/x-motemen/ghq/releases/download/v${GHQ_VERSION}/ghq_linux_amd64.zip" -o /tmp/ghq.zip
+    unzip -o /tmp/ghq.zip -d /tmp
+    mv /tmp/ghq_linux_amd64/ghq /usr/local/bin/ghq
+    chmod +x /usr/local/bin/ghq
+    rm -rf /tmp/ghq.zip /tmp/ghq_linux_amd64
+fi
+
+# lazygit
+if ! command -v lazygit &>/dev/null; then
+    echo "Installing lazygit..."
+    LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+    curl -fsSL "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" | tar xz -C /usr/local/bin lazygit
+fi
+
+# delta (git-delta)
+if ! command -v delta &>/dev/null; then
+    echo "Installing delta..."
+    DELTA_VERSION=$(curl -s https://api.github.com/repos/dandavison/delta/releases/latest | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+    curl -fsSL "https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/delta-${DELTA_VERSION}-x86_64-unknown-linux-musl.tar.gz" | tar xz -C /tmp
+    mv "/tmp/delta-${DELTA_VERSION}-x86_64-unknown-linux-musl/delta" /usr/local/bin/delta
+    chmod +x /usr/local/bin/delta
+    rm -rf "/tmp/delta-${DELTA_VERSION}-x86_64-unknown-linux-musl"
+fi
+
+# Rust-based tools (via cargo if needed)
+RUST_TOOLS_TO_INSTALL=()
+
+command -v rg &>/dev/null || RUST_TOOLS_TO_INSTALL+=("ripgrep")
+command -v fd &>/dev/null || RUST_TOOLS_TO_INSTALL+=("fd-find")
+command -v bat &>/dev/null || RUST_TOOLS_TO_INSTALL+=("bat")
+command -v eza &>/dev/null || RUST_TOOLS_TO_INSTALL+=("eza")
+command -v zoxide &>/dev/null || RUST_TOOLS_TO_INSTALL+=("zoxide")
+
+if [[ ${#RUST_TOOLS_TO_INSTALL[@]} -gt 0 ]]; then
+    echo "Installing Rust-based tools: ${RUST_TOOLS_TO_INSTALL[*]}"
+
+    # cargo がなければインストール
+    if ! command -v cargo &>/dev/null; then
+        echo "Installing Rust..."
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        source "$HOME/.cargo/env"
+    fi
+
+    cargo install "${RUST_TOOLS_TO_INSTALL[@]}"
+fi
+
+# yq (apt経由)
+if ! command -v yq &>/dev/null; then
+    echo "Installing yq..."
+    apt-get install -y yq
+fi
+
+echo "=== CLI tools installation complete ==="

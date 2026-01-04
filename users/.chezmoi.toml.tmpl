@@ -33,7 +33,7 @@
 {{- $isServer := or (eq $area "gcp") (eq $area "oci") (eq $area "conoha") -}}
 {{- $isHome := eq $area "home" -}}
 {{- $hasGui := or $isMac (and $isWsl $isHome) (eq $arch "ubuntu-dev") -}}
-{{- $useHomebrew := or $isMac (and $isUbuntu (not $isContainer)) -}}
+{{- $useHomebrew := $isMac -}}
 
 {{/* ユーザー情報 */}}
 {{- $email := promptStringOnce . "email" "Email address" -}}

@@ -1,0 +1,37 @@
+#!/bin/bash
+# root/.chezmoiscripts/run_once_before_25-install-mise.sh.tmpl
+# mise インストール（Ubuntu/Linux用）
+
+set -eu
+
+{{ if .use_homebrew -}}
+# Homebrew環境ではスキップ（brew経由でインストール）
+echo "=== Skipping mise (will be installed via Homebrew) ==="
+exit 0
+{{ end -}}
+
+{{ if not .is_ubuntu -}}
+# Ubuntu以外ではスキップ
+echo "=== Skipping mise (Ubuntu only) ==="
+exit 0
+{{ end -}}
+
+echo "=== Installing mise ==="
+
+if command -v mise &>/dev/null; then
+    echo "✓ mise is already installed"
+    mise --version
+else
+    echo "Installing mise via official installer..."
+    curl https://mise.run | sh
+
+    # シンボリックリンク作成
+    if [[ -f ~/.local/bin/mise ]]; then
+        ln -sf ~/.local/bin/mise /usr/local/bin/mise || true
+    fi
+
+    echo "✓ mise installed successfully"
+    mise --version
+fi
+
+echo "=== mise installation complete ==="
