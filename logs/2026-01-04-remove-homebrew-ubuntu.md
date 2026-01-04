@@ -1,7 +1,7 @@
 # Work Log: Remove Homebrew Dependency for Ubuntu
 
 **Date:** 2026-01-04
-**Commit:** 1c3a59b
+**Commits:** 1c3a59b (initial), additional fixes for starship and ubuntu_ct removal
 **Type:** Architecture Change
 
 ## Summary
@@ -62,7 +62,7 @@ curl https://mise.run | sh
 
 **Tools Installed:**
 1. **GitHub CLI (gh)** - via apt repository
-2. **starship** - via official installer
+2. **starship** - via GitHub releases (musl binary direct download)
 3. **neovim** - via PPA (neovim-ppa/unstable)
 4. **fzf** - via git clone + manual install
 5. **ghq** - via GitHub releases
@@ -109,6 +109,28 @@ The following scripts already had proper guards:
 4. **Simpler Maintenance** - No Homebrew-specific issues on Linux
 5. **Consistent with Best Practices** - Uses native package manager (apt) for base system
 
+## Additional Fixes
+
+### Starship Installation Fix
+The official starship installer didn't work on Ubuntu 22.04 (error: "ubuntu builds for unknown-linux-musl are not yet available"). Fixed by downloading the musl binary directly from GitHub releases:
+
+```bash
+STARSHIP_VERSION=$(curl -s https://api.github.com/repos/starship/starship/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+curl -fsSL "https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/starship-x86_64-unknown-linux-musl.tar.gz" | tar xz -C /tmp
+mv /tmp/starship /usr/local/bin/starship
+```
+
+### Removed ubuntu_ct Configuration
+Removed the `ubuntu_ct` architecture type as it's no longer needed:
+- Removed from `install` script (VALID_ARCHS, detect_arch)
+- Removed from `.chezmoi.toml.tmpl` files (both root and users)
+- Removed from `shared/data/arch.yaml`
+- Removed from `shared/data/tools.yaml` (exclude_arch sections)
+- Removed from validation script
+- Updated README.md and CI workflow
+
+Containers now use the standard `ubuntu` arch type.
+
 ## Testing Recommendations
 
 Test on clean Ubuntu installations:
@@ -119,8 +141,8 @@ sudo ARCH=ubuntu AREA=home ./install root
 # Ubuntu Server (GCP)
 sudo ARCH=ubuntu AREA=gcp ./install root
 
-# Ubuntu in container
-sudo ARCH=ubuntu_ct AREA=home ./install root
+# Ubuntu in container (use standard ubuntu arch)
+sudo ARCH=ubuntu AREA=home ./install root
 ```
 
 Verify:

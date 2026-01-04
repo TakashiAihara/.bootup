@@ -31,7 +31,10 @@ fi
 # starship
 if ! command -v starship &>/dev/null; then
     echo "Installing starship..."
-    curl -sS https://starship.rs/install.sh | sh -s -- -y
+    STARSHIP_VERSION=$(curl -s https://api.github.com/repos/starship/starship/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+    curl -fsSL "https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/starship-x86_64-unknown-linux-musl.tar.gz" | tar xz -C /tmp
+    mv /tmp/starship /usr/local/bin/starship
+    chmod +x /usr/local/bin/starship
 fi
 
 # neovim (PPA)

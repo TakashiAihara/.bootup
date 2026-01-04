@@ -97,4 +97,4 @@ jobs:
 
       - name: Test install (dry-run)
         run: |
-          ARCH=ubuntu_ct AREA=home ./install --dry-run user || true
+          ARCH=ubuntu AREA=home ./install --dry-run user || true

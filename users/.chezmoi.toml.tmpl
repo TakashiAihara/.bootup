@@ -14,7 +14,7 @@
 {{- else if eq .chezmoi.os "darwin" -}}
 {{-   $arch = "mac" -}}
 {{- else -}}
-{{-   $arch = promptStringOnce . "arch" "Architecture (wsl/ubuntu/ubuntu-dev/ubuntu_ct/ubuntu_nat/mac)" -}}
+{{-   $arch = promptStringOnce . "arch" "Architecture (wsl/ubuntu/ubuntu-dev/ubuntu_nat/mac)" -}}
 {{- end -}}
 
 {{/* AREA の決定 */}}
@@ -29,7 +29,6 @@
 {{- $isWsl := eq $arch "wsl" -}}
 {{- $isMac := eq $arch "mac" -}}
 {{- $isUbuntu := or (eq $arch "ubuntu") (eq $arch "ubuntu-dev") (eq $arch "wsl") -}}
-{{- $isContainer := eq $arch "ubuntu_ct" -}}
 {{- $isServer := or (eq $area "gcp") (eq $area "oci") (eq $area "conoha") -}}
 {{- $isHome := eq $area "home" -}}
 {{- $hasGui := or $isMac (and $isWsl $isHome) (eq $arch "ubuntu-dev") -}}
@@ -66,7 +65,6 @@ sourceDir = {{ .chezmoi.sourceDir | quote }}
     is_wsl = {{ $isWsl }}
     is_mac = {{ $isMac }}
     is_ubuntu = {{ $isUbuntu }}
-    is_container = {{ $isContainer }}
     is_server = {{ $isServer }}
     is_home = {{ $isHome }}
     has_gui = {{ $hasGui }}

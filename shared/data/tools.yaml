@@ -79,10 +79,6 @@ cloud:
 container:
   docker:
     install: true
-    exclude_arch:
-      - ubuntu_ct  # コンテナ内ではスキップ
 
   docker_compose:
     install: true
-    exclude_arch:
-      - ubuntu_ct

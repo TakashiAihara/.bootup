@@ -37,20 +37,6 @@ ubuntu-dev:
     - systemd
   shell: zsh
 
-ubuntu_ct:
-  display: ""
-  browser: ""
-  clipboard:
-    copy: ""
-    paste: ""
-  features: []
-  shell: zsh
-  # コンテナ固有の制限
-  restrictions:
-    - no_docker
-    - no_systemd
-    - no_kernel_modules
-
 ubuntu_nat:
   display: ""
   browser: ""

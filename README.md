@@ -36,7 +36,6 @@ sudo ARCH=ubuntu AREA=gcp TARGET_USER=yourname ./install
 | `wsl` | Windows Subsystem for Linux (Ubuntu) |
 | `ubuntu` | Ubuntu Server/Desktop |
 | `ubuntu-dev` | Ubuntu with GUI |
-| `ubuntu_ct` | Ubuntu Container (LXC/Docker) |
 | `ubuntu_nat` | Ubuntu behind NAT |
 | `mac` | macOS |
 
