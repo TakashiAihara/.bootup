@@ -107,10 +107,11 @@ if [[ ${#RUST_TOOLS_TO_INSTALL[@]} -gt 0 ]]; then
         cargo install "${tool}"
     done
 
-    # インストール済みツールを /usr/local/bin にシンボリックリンク
+    # インストール済みツールを /usr/local/bin にコピー（シンボリックリンクだと root 以外がアクセスできない）
     for binary in rg fd bat eza zoxide; do
-        if [[ -f "$HOME/.cargo/bin/${binary}" ]] && [[ ! -f "/usr/local/bin/${binary}" ]]; then
-            ln -sf "$HOME/.cargo/bin/${binary}" "/usr/local/bin/${binary}"
+        if [[ -f "$HOME/.cargo/bin/${binary}" ]]; then
+            cp "$HOME/.cargo/bin/${binary}" "/usr/local/bin/${binary}"
+            chmod +x "/usr/local/bin/${binary}"
         fi
     done
 fi

@@ -25,9 +25,10 @@ else
     echo "Installing mise via official installer..."
     curl https://mise.run | sh
 
-    # シンボリックリンク作成
+    # バイナリをコピー（シンボリックリンクだと root 以外がアクセスできない）
     if [[ -f ~/.local/bin/mise ]]; then
-        ln -sf ~/.local/bin/mise /usr/local/bin/mise || true
+        cp ~/.local/bin/mise /usr/local/bin/mise
+        chmod +x /usr/local/bin/mise
     fi
 
     echo "✓ mise installed successfully"
