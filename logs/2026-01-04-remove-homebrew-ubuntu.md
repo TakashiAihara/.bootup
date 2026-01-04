@@ -1,7 +1,7 @@
 # Work Log: Remove Homebrew Dependency for Ubuntu
 
 **Date:** 2026-01-04
-**Commits:** 1c3a59b (initial), additional fixes for starship and ubuntu_ct removal
+**Commits:** 1c3a59b (initial), 9e996f6, e960b12, 3cee3d5, d88ead2
 **Type:** Architecture Change
 
 ## Summary
@@ -131,6 +131,19 @@ Removed the `ubuntu_ct` architecture type as it's no longer needed:
 
 Containers now use the standard `ubuntu` arch type.
 
+Note: `is_container` flag is kept with hardcoded `false` value for template compatibility.
+
+### software-properties-common Fix
+Added `software-properties-common` to APT packages for `add-apt-repository` command (required for neovim PPA).
+
+### yq Installation Fix
+Changed yq installation from apt (not available in Ubuntu 22.04) to GitHub releases:
+
+```bash
+YQ_VERSION=$(curl -s https://api.github.com/repos/mikefarah/yq/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+curl -fsSL "https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64" -o /usr/local/bin/yq
+```
+
 ## Testing Recommendations
 
 Test on clean Ubuntu installations:
@@ -145,11 +158,30 @@ sudo ARCH=ubuntu AREA=gcp ./install root
 sudo ARCH=ubuntu AREA=home ./install root
 ```
 
-Verify:
+Verified on Ubuntu 22.04 LXC container (192.168.0.41):
 - ✓ All tools install successfully
 - ✓ No Homebrew installation attempted
-- ✓ mise and CLI tools are in PATH
+- ✓ mise, CLI tools, and cloud tools properly installed
 - ✓ Scripts are idempotent (safe to run multiple times)
+
+### Installed Tool Versions (verified)
+- starship 1.24.2
+- nvim 0.12.0-dev
+- gh 2.83.2
+- fzf 0.67.0
+- ghq 1.8.0
+- lazygit 0.58.0
+- delta 0.18.2
+- mise 2025.12.13
+- yq 4.50.1
+- ripgrep 15.1.0
+- fd 10.3.0
+- bat 0.26.1
+- eza
+- zoxide 0.9.8
+- aws cli
+- gcloud
+- oci cli 3.71.4
 
 ## Future Work
 
