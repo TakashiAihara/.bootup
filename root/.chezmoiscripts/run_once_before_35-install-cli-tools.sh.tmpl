@@ -103,10 +103,12 @@ if [[ ${#RUST_TOOLS_TO_INSTALL[@]} -gt 0 ]]; then
     cargo install "${RUST_TOOLS_TO_INSTALL[@]}"
 fi
 
-# yq (apt経由)
+# yq (GitHub releases)
 if ! command -v yq &>/dev/null; then
     echo "Installing yq..."
-    apt-get install -y yq
+    YQ_VERSION=$(curl -s https://api.github.com/repos/mikefarah/yq/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+    curl -fsSL "https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64" -o /usr/local/bin/yq
+    chmod +x /usr/local/bin/yq
 fi
 
 echo "=== CLI tools installation complete ==="
