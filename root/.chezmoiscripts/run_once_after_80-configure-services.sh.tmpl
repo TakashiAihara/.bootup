@@ -33,6 +33,20 @@ if command -v docker &>/dev/null; then
 fi
 {{ end -}}
 
+# ==================== UFW ====================
+# ファイアウォールは SG (Security Group) 等の外部で管理
+# Docker との競合も避けるため無効化
+
+if command -v ufw &>/dev/null; then
+    if ufw status | grep -q "Status: inactive"; then
+        echo "✓ UFW already disabled"
+    else
+        echo "Disabling UFW (firewall managed externally)..."
+        ufw --force disable
+        echo "✓ UFW disabled"
+    fi
+fi
+
 {{ if .is_server -}}
 # ==================== fail2ban ====================
 
@@ -44,28 +58,6 @@ if command -v fail2ban-server &>/dev/null; then
         systemctl enable fail2ban
         systemctl start fail2ban
         echo "✓ fail2ban enabled and started"
-    fi
-fi
-
-# ==================== UFW ====================
-
-if command -v ufw &>/dev/null; then
-    # UFW の状態確認
-    if ufw status | grep -q "Status: active"; then
-        echo "✓ UFW already active"
-    else
-        echo "Configuring UFW..."
-        
-        # デフォルトポリシー
-        ufw default deny incoming
-        ufw default allow outgoing
-        
-        # SSH を許可
-        ufw allow ssh
-        
-        # 有効化
-        echo "y" | ufw enable
-        echo "✓ UFW configured and enabled"
     fi
 fi
 {{ end -}}
