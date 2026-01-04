@@ -39,9 +39,17 @@
 [push]
     default = current
     autoSetupRemote = true
+    recurseSubmodules = check
 
 [fetch]
     prune = true
+    recurseSubmodules = on-demand
+
+[submodule]
+    recurse = true
+
+[status]
+    submoduleSummary = true
 
 [rebase]
     autoStash = true
@@ -68,7 +76,7 @@
     cleanup = "!git branch --merged | grep -v '\\*\\|main\\|master\\|develop' | xargs -n 1 git branch -d"
 
 [ghq]
-    root = ~/.ghq_src
+    root = ~/.ghq
 
 {{ if .is_home -}}
 [commit]
