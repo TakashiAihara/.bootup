@@ -1,110 +1,39 @@
 # ~/.gitignore_global
-# グローバル Git 無視ファイル
+# グローバル Git ignore
 
-# ==================== OS 固有 ====================
-
-# macOS
+# OS
 .DS_Store
-.AppleDouble
-.LSOverride
-._*
-.Spotlight-V100
-.Trashes
-
-# Windows
+.metadata/
 Thumbs.db
-ehthumbs.db
-Desktop.ini
 
-# Linux
-*~
-
-# ==================== エディタ ====================
-
-# Vim/Neovim
+# Editor
+.vscode/
+.idea/
 *.swp
 *.swo
-*.swn
-*.un~
-Session.vim
-.netrwhist
-
-# VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# JetBrains
-.idea/
-*.iml
-*.ipr
-*.iws
-
-# Emacs
 *~
-\#*\#
-.#*
-*.elc
 
-# ==================== 言語/ツール ====================
-
-# Node.js
+# Node
+.pnpm*
 node_modules/
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.Python
-*.egg-info/
-.eggs/
-*.egg
-.venv/
-venv/
-ENV/
-.env
+# Build/Output
+docs_*/
+dump/
+out/
+temp/
+dist/
+build/
 
-# Ruby
-*.gem
-.bundle/
-vendor/bundle
+# API testing
+thunder*.json
+thunder-collection_multi.json
+thunder-tests/
 
-# Go
-vendor/
-
-# Rust
-target/
-
-# ==================== IDE/ビルドツール ====================
-
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Compiled
-*.o
-*.so
-*.dll
-*.exe
-*.out
-*.class
-
-# ==================== その他 ====================
-
-# 一時ファイル
-*.tmp
-*.temp
-*.bak
-*.backup
-*.cache
-
-# 秘密情報
-*.pem
-*.key
-*.secrets
+# Environment
+.envrc
 .env.local
 .env.*.local
+
+# Claude
+.claude/

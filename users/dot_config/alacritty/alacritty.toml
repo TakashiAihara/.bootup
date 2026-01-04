@@ -1,0 +1,99 @@
+# ~/.config/alacritty/alacritty.toml
+# Alacritty ターミナル設定 (macOS)
+
+[window]
+dimensions = { columns = 120, lines = 40 }
+padding = { x = 8, y = 8 }
+decorations = "buttonless"
+startup_mode = "Windowed"
+dynamic_padding = true
+
+[scrolling]
+history = 10000
+multiplier = 3
+
+[font]
+size = 14.0
+
+[font.normal]
+family = "Hack Nerd Font"
+style = "Regular"
+
+[font.bold]
+family = "Hack Nerd Font"
+style = "Bold"
+
+[font.italic]
+family = "Hack Nerd Font"
+style = "Italic"
+
+# One Dark カラースキーム
+[colors.primary]
+background = "#1e2127"
+foreground = "#abb2bf"
+bright_foreground = "#e6efff"
+
+[colors.normal]
+black   = "#1e2127"
+red     = "#e06c75"
+green   = "#98c379"
+yellow  = "#d19a66"
+blue    = "#61afef"
+magenta = "#c678dd"
+cyan    = "#56b6c2"
+white   = "#828791"
+
+[colors.bright]
+black   = "#5c6370"
+red     = "#e06c75"
+green   = "#98c379"
+yellow  = "#d19a66"
+blue    = "#61afef"
+magenta = "#c678dd"
+cyan    = "#56b6c2"
+white   = "#e6efff"
+
+[colors.dim]
+black   = "#1e2127"
+red     = "#e06c75"
+green   = "#98c379"
+yellow  = "#d19a66"
+blue    = "#61afef"
+magenta = "#c678dd"
+cyan    = "#56b6c2"
+white   = "#828791"
+
+[selection]
+save_to_clipboard = true
+
+[cursor]
+style = { shape = "Block", blinking = "Off" }
+unfocused_hollow = true
+
+[mouse]
+hide_when_typing = true
+
+[[keyboard.bindings]]
+key = "Up"
+mods = "Alt"
+chars = "\u001b[1;5A"
+
+[[keyboard.bindings]]
+key = "Down"
+mods = "Alt"
+chars = "\u001b[1;5B"
+
+[[keyboard.bindings]]
+key = "Left"
+mods = "Alt"
+chars = "\u001bb"
+
+[[keyboard.bindings]]
+key = "Right"
+mods = "Alt"
+chars = "\u001bf"
+
+[[keyboard.bindings]]
+key = "Return"
+mods = "Control|Shift"
+action = "SpawnNewInstance"
