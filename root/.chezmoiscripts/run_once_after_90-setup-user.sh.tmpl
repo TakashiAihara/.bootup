@@ -1,31 +1,61 @@
 #!/bin/bash
 # root/.chezmoiscripts/run_once_after_90-setup-user.sh.tmpl
-# 一般ユーザーのセットアップ呼び出し
+# dev ユーザーのセットアップ
 
 set -eu
 
 echo "=== User setup phase ==="
 
-{{ if .target_user -}}
-TARGET_USER="{{ .target_user }}"
+# デフォルトユーザー名
+DEFAULT_USER="dev"
+TARGET_USER="${TARGET_USER:-${DEFAULT_USER}}"
 
-if [[ -n "${TARGET_USER}" ]]; then
-    if id "${TARGET_USER}" &>/dev/null; then
-        echo "Target user: ${TARGET_USER}"
-        
-        # ユーザーの chezmoi 設定を適用
-        echo "Note: User configuration should be applied separately"
-        echo "Run: su - ${TARGET_USER} -c 'ARCH={{ .arch }} AREA={{ .area }} chezmoi init --source=/path/to/users --apply'"
-    else
-        echo "Warning: User ${TARGET_USER} does not exist"
-    fi
+echo "Target user: ${TARGET_USER}"
+
+# ユーザーが存在しない場合は作成
+if ! id "${TARGET_USER}" &>/dev/null; then
+    echo "Creating user ${TARGET_USER}..."
+    useradd -m -s /bin/zsh "${TARGET_USER}"
+    echo "User ${TARGET_USER} created"
 else
-    echo "Note: No target user specified"
-    echo "To setup a user, run with TARGET_USER=<username>"
+    echo "User ${TARGET_USER} already exists"
+
+    # シェルを zsh に変更
+    current_shell=$(getent passwd "${TARGET_USER}" | cut -d: -f7)
+    if [[ "${current_shell}" != "/bin/zsh" && "${current_shell}" != "/usr/bin/zsh" ]]; then
+        echo "Changing shell to zsh..."
+        usermod -s /bin/zsh "${TARGET_USER}"
+    fi
 fi
-{{ else -}}
-echo "Note: No target user specified"
-echo "To setup a user, run with TARGET_USER=<username>"
-{{ end -}}
+
+# ホームディレクトリの確認
+USER_HOME=$(getent passwd "${TARGET_USER}" | cut -d: -f6)
+if [[ ! -d "${USER_HOME}" ]]; then
+    echo "Creating home directory ${USER_HOME}..."
+    mkdir -p "${USER_HOME}"
+    chown "${TARGET_USER}:${TARGET_USER}" "${USER_HOME}"
+    chmod 755 "${USER_HOME}"
+fi
+
+# sudoers 設定
+SUDOERS_FILE="/etc/sudoers.d/${TARGET_USER}"
+if [[ ! -f "${SUDOERS_FILE}" ]]; then
+    echo "Adding ${TARGET_USER} to sudoers..."
+    echo "${TARGET_USER} ALL=(ALL) NOPASSWD:ALL" > "${SUDOERS_FILE}"
+    chmod 440 "${SUDOERS_FILE}"
+fi
+
+# docker グループに追加（docker がインストールされている場合）
+if getent group docker &>/dev/null; then
+    if ! groups "${TARGET_USER}" | grep -q docker; then
+        echo "Adding ${TARGET_USER} to docker group..."
+        usermod -aG docker "${TARGET_USER}"
+    fi
+fi
+
+echo "User ${TARGET_USER} setup complete"
+echo "  Home: ${USER_HOME}"
+echo "  Shell: /bin/zsh"
+echo "  Sudoers: ${SUDOERS_FILE}"
 
 echo "=== Root setup complete ==="
