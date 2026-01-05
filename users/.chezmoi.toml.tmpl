@@ -34,10 +34,28 @@
 {{- $hasGui := or $isMac (and $isWsl $isHome) (eq $arch "ubuntu-dev") -}}
 {{- $useHomebrew := $isMac -}}
 
-{{/* ユーザー情報 */}}
-{{- $email := promptStringOnce . "email" "Email address" -}}
-{{- $name := promptStringOnce . "name" "Full name" -}}
-{{- $githubUser := promptStringOnce . "github_user" "GitHub username" -}}
+{{/* ユーザー情報（環境変数優先、なければプロンプト） */}}
+{{- $email := "" -}}
+{{- $name := "" -}}
+{{- $githubUser := "" -}}
+
+{{- if env "CHEZMOI_EMAIL" -}}
+{{-   $email = env "CHEZMOI_EMAIL" -}}
+{{- else -}}
+{{-   $email = promptStringOnce . "email" "Email address" -}}
+{{- end -}}
+
+{{- if env "CHEZMOI_NAME" -}}
+{{-   $name = env "CHEZMOI_NAME" -}}
+{{- else -}}
+{{-   $name = promptStringOnce . "name" "Full name" -}}
+{{- end -}}
+
+{{- if env "CHEZMOI_GITHUB_USER" -}}
+{{-   $githubUser = env "CHEZMOI_GITHUB_USER" -}}
+{{- else -}}
+{{-   $githubUser = promptStringOnce . "github_user" "GitHub username" -}}
+{{- end -}}
 
 {{/* ==================== chezmoi 基本設定 ==================== */}}
 

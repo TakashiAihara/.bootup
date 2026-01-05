@@ -134,8 +134,11 @@ Options:
     --target-user=USER      User to setup (when running as root)
 
 Environment Variables:
-    ARCH    - Architecture: ${VALID_ARCHS[*]}
-    AREA    - Area: ${VALID_AREAS[*]}
+    ARCH              - Architecture: ${VALID_ARCHS[*]}
+    AREA              - Area: ${VALID_AREAS[*]}
+    CHEZMOI_EMAIL     - Email address (optional, prompts if not set)
+    CHEZMOI_NAME      - Full name (optional, prompts if not set)
+    CHEZMOI_GITHUB_USER - GitHub username (optional, prompts if not set)
 
 Examples:
     # WSL home environment
@@ -256,7 +259,11 @@ main() {
                 if [[ -n "${TARGET_USER:-}" ]]; then
                     if id "$TARGET_USER" &>/dev/null; then
                         log_info "Applying user configuration for ${TARGET_USER}..."
-                        su - "$TARGET_USER" -c "ARCH='$ARCH' AREA='$AREA' chezmoi init --source='${SCRIPT_DIR}/users' ${chezmoi_opts[*]} --apply"
+                        local user_env="ARCH='$ARCH' AREA='$AREA'"
+                        [[ -n "${CHEZMOI_EMAIL:-}" ]] && user_env+=" CHEZMOI_EMAIL='$CHEZMOI_EMAIL'"
+                        [[ -n "${CHEZMOI_NAME:-}" ]] && user_env+=" CHEZMOI_NAME='$CHEZMOI_NAME'"
+                        [[ -n "${CHEZMOI_GITHUB_USER:-}" ]] && user_env+=" CHEZMOI_GITHUB_USER='$CHEZMOI_GITHUB_USER'"
+                        su - "$TARGET_USER" -c "${user_env} chezmoi init --source='${SCRIPT_DIR}/users' ${chezmoi_opts[*]} --apply"
                         log_success "User configuration applied for ${TARGET_USER}"
                     else
                         log_warn "User ${TARGET_USER} does not exist, skipping user configuration"
