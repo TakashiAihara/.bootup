@@ -6,7 +6,7 @@
 
 | 項目 | 状態 | 備考 |
 |------|------|------|
-| 基本パッケージ | ✅ | curl, git, zsh, vim, ffmpeg, redis-tools, libyaml-dev 等 |
+| 基本パッケージ | ✅ | curl, git, zsh, vim, ffmpeg, redis-tools, postgresql-client 等 |
 | Locale/Timezone | ✅ | ja_JP.UTF-8, Asia/Tokyo |
 | mise | ✅ | バイナリをコピー（symlink ではない） |
 | CLI ツール | ✅ | starship, fzf, ghq, lazygit, delta, yq, ollama |
@@ -44,7 +44,6 @@
 | node | 22 |
 | python | 3.12 |
 | go | 1.23 |
-| ruby | 3.3 |
 | deno | latest |
 | bun | latest |
 | java | 21 |
@@ -77,8 +76,8 @@
 #### データベース
 | ツール | バージョン | 備考 |
 |--------|-----------|------|
-| mongosh | latest | |
-| postgres | ❌ 無効化 | ビルドに時間がかかるため |
+| mongosh | latest | mise |
+| postgresql-client | apt | psql コマンド |
 
 #### モバイル/Flutter
 | ツール | バージョン |
