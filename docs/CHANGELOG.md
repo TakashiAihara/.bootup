@@ -6,7 +6,7 @@
 
 | 項目 | 状態 | 備考 |
 |------|------|------|
-| 基本パッケージ | ✅ | curl, git, zsh, vim, ffmpeg, redis-tools 等 |
+| 基本パッケージ | ✅ | curl, git, zsh, vim, ffmpeg, redis-tools, libyaml-dev 等 |
 | Locale/Timezone | ✅ | ja_JP.UTF-8, Asia/Tokyo |
 | mise | ✅ | バイナリをコピー（symlink ではない） |
 | CLI ツール | ✅ | starship, fzf, ghq, lazygit, delta, yq, ollama |
@@ -75,10 +75,10 @@
 | hasura-cli | latest |
 
 #### データベース
-| ツール | バージョン |
-|--------|-----------|
-| mongosh | latest |
-| postgres | latest |
+| ツール | バージョン | 備考 |
+|--------|-----------|------|
+| mongosh | latest | |
+| postgres | ❌ 無効化 | ビルドに時間がかかるため |
 
 #### モバイル/Flutter
 | ツール | バージョン |
