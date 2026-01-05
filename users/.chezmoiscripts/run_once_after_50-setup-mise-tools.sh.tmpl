@@ -21,6 +21,11 @@ if ! command -v mise &>/dev/null; then
     exit 0
 fi
 
+# GitHub API rate limit 回避のため GITHUB_TOKEN を設定
+if command -v gh &>/dev/null && gh auth status &>/dev/null; then
+    export GITHUB_TOKEN=$(gh auth token)
+fi
+
 # mise の設定ファイルを信頼する
 mise trust ~/.config/mise/config.toml 2>/dev/null || true
 
@@ -36,7 +41,6 @@ mise install go@1.23 -y || true
 mise install rust@stable -y || true
 mise install deno@latest -y || true
 mise install bun@latest -y || true
-mise install ruby@3.3 -y || true
 mise install java@21 -y || true
 {{ end -}}
 
