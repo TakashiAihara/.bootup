@@ -64,7 +64,6 @@
 | act | latest | GitHub Actions ローカル実行 |
 | rclone | latest | クラウドストレージ同期 |
 | yt-dlp | latest | 動画ダウンロード |
-| xq | latest | XML 処理 |
 | yj | latest | YAML/JSON 変換 |
 | ripgrep | latest | 高速 grep (rg コマンド) |
 
