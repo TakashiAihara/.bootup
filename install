@@ -139,6 +139,7 @@ Environment Variables:
     CHEZMOI_EMAIL     - Email address (optional, prompts if not set)
     CHEZMOI_NAME      - Full name (optional, prompts if not set)
     CHEZMOI_GITHUB_USER - GitHub username (optional, prompts if not set)
+    GITHUB_TOKEN      - GitHub token for API rate limit (optional)
 
 Examples:
     # WSL home environment
@@ -263,6 +264,7 @@ main() {
                         [[ -n "${CHEZMOI_EMAIL:-}" ]] && user_env+=" CHEZMOI_EMAIL='$CHEZMOI_EMAIL'"
                         [[ -n "${CHEZMOI_NAME:-}" ]] && user_env+=" CHEZMOI_NAME='$CHEZMOI_NAME'"
                         [[ -n "${CHEZMOI_GITHUB_USER:-}" ]] && user_env+=" CHEZMOI_GITHUB_USER='$CHEZMOI_GITHUB_USER'"
+                        [[ -n "${GITHUB_TOKEN:-}" ]] && user_env+=" GITHUB_TOKEN='$GITHUB_TOKEN'"
                         su - "$TARGET_USER" -c "${user_env} chezmoi init --source='${SCRIPT_DIR}/users' ${chezmoi_opts[*]} --apply"
                         log_success "User configuration applied for ${TARGET_USER}"
                     else
