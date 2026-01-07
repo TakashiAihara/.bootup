@@ -1,38 +1,87 @@
-[core]
-whitespace = cr-at-eol
-filemode = false
-quotepath = false
-commitGraph = true
-editor = nvim
-
-[credential]
-helper = cache --timeout=7200
-
-[ghq]
-root = ~/.ghq
-user = TakashiAihara
-
-[http]
-postBuffer = 157286400
-
-[diff]
-tool = default-difftool
-
-[difftool "default-difftool"]
-cmd = code --wait --diff $LOCAL $REMOTE
-
-[pull]
-rebase = false
-
-[init]
-defaultBranch = main
-
-[receive]
-advertisePushOptions = true
-
-[gc]
-writeCommitGraph = true
+# ~/.gitconfig
 
 [user]
-name = TakashiAihara
-email = 47384567+TakashiAihara@users.noreply.github.com
+    name = TakashiAihara
+    email = 47384567+TakashiAihara@users.noreply.github.com
+
+[init]
+    defaultBranch = main
+
+[core]
+    editor = nvim
+    excludesfile = ~/.gitignore_global
+    pager = delta
+    autocrlf = input
+    quotepath = false
+    whitespace = cr-at-eol
+    filemode = false
+    commitGraph = true
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true
+    light = false
+    side-by-side = true
+    line-numbers = true
+
+[merge]
+    conflictstyle = diff3
+
+[diff]
+    colorMoved = default
+
+[color]
+    ui = auto
+
+[pull]
+    rebase = false
+
+[push]
+    default = current
+    autoSetupRemote = true
+    recurseSubmodules = check
+
+[fetch]
+    prune = true
+    recurseSubmodules = on-demand
+
+[submodule]
+    recurse = true
+
+[status]
+    submoduleSummary = true
+
+[rebase]
+    autoStash = true
+
+[alias]
+    s = status
+    d = diff
+    co = checkout
+    br = branch
+    ci = commit
+    amend = commit --amend --no-edit
+    lg = log --oneline --graph --decorate -15
+    ll = log --pretty=format:'%C(yellow)%h%Creset %s %C(cyan)<%an>%Creset %C(green)(%cr)%Creset' -20
+    unstage = reset HEAD --
+    last = log -1 HEAD
+    aliases = config --get-regexp alias
+    cleanup = "!git branch --merged | grep -v '\\*\\|main\\|master\\|develop' | xargs -n 1 git branch -d"
+
+[ghq]
+    root = ~/.ghq
+    user = TakashiAihara
+
+[credential]
+    helper = cache --timeout=7200
+
+[http]
+    postBuffer = 157286400
+
+[receive]
+    advertisePushOptions = true
+
+[gc]
+    writeCommitGraph = true
