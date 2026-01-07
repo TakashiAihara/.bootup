@@ -103,7 +103,6 @@ detect_files = ["Cargo.toml"]
 
 # ==================== インフラ ====================
 
-{{ if not .is_container -}}
 [docker_context]
 format = "[$symbol$context]($style) "
 symbol = " "
@@ -112,7 +111,6 @@ only_with_files = true
 detect_extensions = []
 detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
 
-{{ if or .is_server .is_home -}}
 [kubernetes]
 format = '[$symbol$context( \($namespace\))]($style) '
 symbol = "☸ "
@@ -121,9 +119,6 @@ disabled = false
 detect_extensions = []
 detect_files = []
 detect_folders = []
-{{ end -}}
-{{ end -}}
-
 # ==================== 無効化 ====================
 
 [aws]
