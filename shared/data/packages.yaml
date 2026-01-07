@@ -75,7 +75,6 @@ brew:
     - ripgrep
     - fd
     - bat
-    - eza
     - zoxide
     - fzf
     - gh

@@ -86,7 +86,6 @@ RUST_TOOLS_TO_INSTALL=()
 
 command -v fd &>/dev/null || RUST_TOOLS_TO_INSTALL+=("fd-find")
 command -v bat &>/dev/null || RUST_TOOLS_TO_INSTALL+=("bat")
-command -v eza &>/dev/null || RUST_TOOLS_TO_INSTALL+=("eza")
 command -v zoxide &>/dev/null || RUST_TOOLS_TO_INSTALL+=("zoxide")
 
 if [[ ${#RUST_TOOLS_TO_INSTALL[@]} -gt 0 ]]; then
@@ -107,7 +106,7 @@ if [[ ${#RUST_TOOLS_TO_INSTALL[@]} -gt 0 ]]; then
     done
 
     # インストール済みツールを /usr/local/bin にコピー（シンボリックリンクだと root 以外がアクセスできない）
-    for binary in fd bat eza zoxide; do
+    for binary in fd bat zoxide; do
         if [[ -f "$HOME/.cargo/bin/${binary}" ]]; then
             cp "$HOME/.cargo/bin/${binary}" "/usr/local/bin/${binary}"
             chmod +x "/usr/local/bin/${binary}"

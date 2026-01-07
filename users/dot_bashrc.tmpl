@@ -53,15 +53,9 @@ fi
 # ==================== エイリアス ====================
 
 # ls
-if command -v eza &>/dev/null; then
-    alias ls='eza --icons'
-    alias ll='eza -la --icons --git'
-    alias la='eza -a --icons'
-else
-    alias ls='ls --color=auto'
-    alias ll='ls -la'
-    alias la='ls -a'
-fi
+alias ls='ls --color=auto'
+alias ll='ls -la'
+alias la='ls -a'
 
 # grep
 alias grep='grep --color=auto'

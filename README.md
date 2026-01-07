@@ -82,7 +82,7 @@ ARCH=ubuntu AREA=home ./install user
 | Locale/Timezone | ja_JP.UTF-8, Asia/Tokyo |
 | mise | バイナリを /usr/local/bin にコピー |
 | CLI ツール | starship, fzf, ghq, lazygit, delta, yq, ollama |
-| Rust ツール | fd, bat, eza, zoxide（cargo → /usr/local/bin にコピー） |
+| Rust ツール | fd, bat, zoxide（cargo → /usr/local/bin にコピー） |
 | Docker | docker + compose |
 | dev ユーザー | 自動作成、zsh シェル、sudoers、docker グループ |
 
