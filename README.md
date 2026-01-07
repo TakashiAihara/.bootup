@@ -2,115 +2,206 @@
 
 chezmoi-based multi-environment development setup system.
 
-## Features
+## Prerequisites
 
-- **Single Command Setup**: Initialize your development environment with one command
-- **Multi-Platform Support**: WSL, Ubuntu, macOS
-- **Multi-Environment Support**: Home, GCP, OCI, ConoHa
-- **Root/User Separation**: Clear separation between system configuration and user dotfiles
-- **Template-Based**: Declarative configuration using Go templates
+実行前に以下のパッケージが必要です：
+
+```bash
+# Ubuntu/Debian
+apt-get update && apt-get install -y git curl
+
+# macOS (Xcode Command Line Tools)
+xcode-select --install
+```
 
 ## Quick Start
 
+### 基本的な使い方
+
 ```bash
-# Clone the repository
-git clone https://github.com/TakashiAihara/.bootup.git
-cd .bootup
+# リポジトリをクローン
+git clone https://github.com/TakashiAihara/.bootup.git /tmp/.bootup
+cd /tmp/.bootup
 
-# WSL + Home environment
-ARCH=wsl AREA=home ./install
-
-# macOS
-ARCH=mac AREA=home ./install
-
-# Ubuntu on GCP (as root with target user)
-sudo ARCH=ubuntu AREA=gcp TARGET_USER=yourname ./install
+# Ubuntu サーバー（root で実行、dev ユーザーを自動作成）
+sudo ARCH=ubuntu AREA=home TARGET_USER=dev \
+  CHEZMOI_EMAIL=your@email.com \
+  CHEZMOI_NAME='Your Name' \
+  CHEZMOI_GITHUB_USER=yourusername \
+  GITHUB_TOKEN='your_github_token' \
+  ./install all
 ```
+
+### GitHub API Rate Limit 回避
+
+mise が GitHub API を使用するため、rate limit エラーを避けるには `GITHUB_TOKEN` が必要です：
+
+```bash
+# gh CLI でログイン済みの場合
+GITHUB_TOKEN=$(gh auth token) ./install all
+
+# または GitHub Personal Access Token を直接指定
+GITHUB_TOKEN='ghp_xxxxxxxxxxxx' ./install all
+```
+
+## Environment Variables
+
+| 変数 | 必須 | 説明 |
+|------|------|------|
+| `ARCH` | ○ | アーキテクチャ: `wsl`, `ubuntu`, `ubuntu-dev`, `ubuntu_nat`, `mac` |
+| `AREA` | ○ | 環境: `home`, `gcp`, `oci`, `conoha` |
+| `TARGET_USER` | △ | セットアップ対象ユーザー（デフォルト: `dev`） |
+| `CHEZMOI_EMAIL` | △ | メールアドレス（未設定時はプロンプト） |
+| `CHEZMOI_NAME` | △ | フルネーム（未設定時はプロンプト） |
+| `CHEZMOI_GITHUB_USER` | △ | GitHub ユーザー名（未設定時はプロンプト） |
+| `GITHUB_TOKEN` | △ | GitHub API トークン（rate limit 回避用） |
+
+## Commands
+
+```bash
+# ヘルプ表示
+./install --help
+
+# root + user 両方（推奨）
+sudo ARCH=ubuntu AREA=home TARGET_USER=dev ./install all
+
+# root のみ（システム設定 + dev ユーザー作成）
+sudo ARCH=ubuntu AREA=home ./install root
+
+# user のみ（一般ユーザーとして実行）
+ARCH=ubuntu AREA=home ./install user
+
+# ドライラン
+./install --dry-run
+
+# 詳細出力
+./install --verbose
+```
+
+## What Gets Installed
+
+### Root 設定（`./install root`）
+
+| 項目 | 内容 |
+|------|------|
+| 基本パッケージ | curl, git, zsh, vim, ffmpeg, redis-tools, postgresql-client |
+| Locale/Timezone | ja_JP.UTF-8, Asia/Tokyo |
+| mise | バイナリを /usr/local/bin にコピー |
+| CLI ツール | starship, fzf, ghq, lazygit, delta, yq, ollama |
+| Rust ツール | fd, bat, eza, zoxide（cargo → /usr/local/bin にコピー） |
+| Docker | docker + compose |
+| dev ユーザー | 自動作成、zsh シェル、sudoers、docker グループ |
+
+### User 設定（`./install user` または `all`）
+
+| 項目 | 内容 |
+|------|------|
+| シェル | zshrc, zshenv（zinit プラグイン） |
+| Git | gitconfig, gitignore_global（delta 連携） |
+| エディタ | neovim（lazy.nvim + プラグイン） |
+| ターミナル | tmux, starship prompt |
+| Claude | hooks 設定 |
+
+### mise でインストールされるツール
+
+#### 言語
+- node@22, python@3.12, go@1.23, rust@stable
+- deno, bun, java@21, dart, zig
+
+#### CLI ツール
+- zellij, act, rclone, yt-dlp, yj, ripgrep
+- helm, grpcurl, hasura-cli, mongosh
+
+#### Flutter
+- flutter@latest
 
 ## Supported Environments
 
-### ARCH (Architecture/OS)
+### ARCH
 
-| ARCH | Description |
-|------|-------------|
-| `wsl` | Windows Subsystem for Linux (Ubuntu) |
+| 値 | 説明 |
+|------|------|
+| `wsl` | Windows Subsystem for Linux |
 | `ubuntu` | Ubuntu Server/Desktop |
 | `ubuntu-dev` | Ubuntu with GUI |
 | `ubuntu_nat` | Ubuntu behind NAT |
 | `mac` | macOS |
 
-### AREA (Environment/Location)
+### AREA
 
-| AREA | Description |
-|------|-------------|
-| `home` | Home environment (full development) |
+| 値 | 説明 |
+|------|------|
+| `home` | ホーム環境（フル開発環境） |
 | `gcp` | Google Cloud Platform |
 | `oci` | Oracle Cloud Infrastructure |
 | `conoha` | ConoHa VPS |
-
-## Usage
-
-```bash
-# Show help
-./install --help
-
-# Dry run
-ARCH=ubuntu AREA=gcp ./install --dry-run
-
-# Verbose output
-ARCH=mac AREA=home ./install --verbose
-
-# Root configuration only
-sudo ARCH=ubuntu AREA=oci ./install root
-
-# User configuration only
-ARCH=wsl AREA=home ./install user
-```
 
 ## Directory Structure
 
 ```
 .bootup/
-├── install                 # Entry point script
-├── root/                   # Root chezmoi source directory
-│   ├── .chezmoi.toml.tmpl  # chezmoi config template
-│   ├── .chezmoiignore      # Ignore patterns
-│   └── .chezmoiscripts/    # Installation scripts
-├── users/                  # User chezmoi source directory
-│   ├── .chezmoi.toml.tmpl  # chezmoi config template
-│   ├── .chezmoiignore.tmpl # Ignore patterns (template)
-│   ├── .chezmoiscripts/    # User setup scripts
-│   ├── dot_zshrc.tmpl      # ~/.zshrc
-│   ├── dot_zshenv.tmpl     # ~/.zshenv
-│   ├── dot_gitconfig.tmpl  # ~/.gitconfig
+├── install                 # エントリーポイント
+├── root/                   # Root chezmoi ソース
+│   ├── .chezmoi.toml.tmpl
+│   └── .chezmoiscripts/    # システム設定スクリプト
+├── users/                  # User chezmoi ソース
+│   ├── .chezmoi.toml.tmpl
+│   ├── .chezmoiscripts/    # ユーザー設定スクリプト
+│   ├── dot_zshrc.tmpl
+│   ├── dot_gitconfig.tmpl
 │   └── dot_config/         # ~/.config/
-└── shared/                 # Shared resources
-    └── data/               # Data files (packages, tools, etc.)
+└── docs/
+    └── CHANGELOG.md        # 変更履歴
 ```
 
-## What Gets Installed
+## Example: Fresh Ubuntu Container Setup
 
-### Packages
+```bash
+# 1. 必要なパッケージをインストール
+apt-get update && apt-get install -y git curl
 
-- **Essential**: git, curl, wget, zsh
-- **CLI Tools**: ripgrep, fd, bat, eza, fzf, jq, yq, tmux, neovim
-- **Development**: mise, direnv, gh, ghq, lazygit, delta
-- **Languages** (via mise): Node.js, Python, Go, Rust, etc.
+# 2. リポジトリをクローン
+git clone https://github.com/TakashiAihara/.bootup.git /tmp/.bootup
+cd /tmp/.bootup
 
-### Dotfiles
+# 3. フルインストール実行
+ARCH=ubuntu AREA=home \
+  TARGET_USER=dev \
+  CHEZMOI_EMAIL=dev@example.com \
+  CHEZMOI_NAME='Dev User' \
+  CHEZMOI_GITHUB_USER=TakashiAihara \
+  GITHUB_TOKEN=$(gh auth token) \
+  ./install all
 
-- Shell: `.zshrc`, `.zshenv`
-- Git: `.gitconfig`, `.gitignore_global`
-- Editor: neovim config
-- Terminal: tmux, starship prompt
-- Tools: mise config
+# 4. dev ユーザーでログイン
+su - dev
+```
 
-## Requirements
+## Troubleshooting
 
-- Internet connection
-- sudo privileges (for root configuration)
-- On Ubuntu: `apt update` completed
-- On macOS: Xcode Command Line Tools
+### GitHub API Rate Limit
+
+```
+mise ERROR: HTTP status client error (403 rate limit exceeded)
+```
+
+→ `GITHUB_TOKEN` を設定してください。
+
+### User does not exist
+
+```
+User dev does not exist, skipping user configuration
+```
+
+→ `./install root` を先に実行するか、`./install all` を使用してください。
+
+### Interactive prompts fail
+
+```
+could not open a new TTY
+```
+
+→ `CHEZMOI_EMAIL`, `CHEZMOI_NAME`, `CHEZMOI_GITHUB_USER` を環境変数で設定してください。
 
 ## License
 

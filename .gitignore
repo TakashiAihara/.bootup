@@ -12,6 +12,7 @@ Thumbs.db
 
 # Logs
 *.log
+logs/
 
 # Secrets (never commit)
 *.pem

@@ -7,6 +7,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CHEZMOI_VERSION="2.47.0"
+LOG_DIR="${SCRIPT_DIR}/logs"
+LOG_FILE="${LOG_DIR}/install-$(date +%Y%m%d-%H%M%S).log"
 
 # 有効な ARCH / AREA の一覧
 VALID_ARCHS=("wsl" "ubuntu" "ubuntu-dev" "ubuntu_nat" "mac")
@@ -51,6 +53,18 @@ contains() {
         [[ "$e" == "$element" ]] && return 0
     done
     return 1
+}
+
+# ログディレクトリのセットアップ
+setup_logging() {
+    mkdir -p "${LOG_DIR}"
+    # 古いログを削除（10個以上は削除）
+    local log_count
+    log_count=$(find "${LOG_DIR}" -name "install-*.log" 2>/dev/null | wc -l)
+    if [[ ${log_count} -gt 10 ]]; then
+        find "${LOG_DIR}" -name "install-*.log" -type f | sort | head -n $((log_count - 10)) | xargs rm -f
+    fi
+    log_info "Logging to: ${LOG_FILE}"
 }
 
 # ==================== 環境検出 ====================
@@ -192,7 +206,10 @@ main() {
                 ;;
         esac
     done
-    
+
+    # ログセットアップ
+    setup_logging
+
     # ARCH 検証/検出
     if [[ -z "${ARCH:-}" ]]; then
         ARCH=$(detect_arch)
@@ -287,6 +304,13 @@ main() {
     esac
     
     log_success "Setup complete!"
+    log_info "Log saved to: ${LOG_FILE}"
 }
 
-main "$@"
+# ログディレクトリ作成
+mkdir -p "${LOG_DIR}"
+
+# メイン実行（ログファイルにも出力）
+{
+    main "$@"
+} 2>&1 | tee -a "${LOG_FILE}"
