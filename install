@@ -253,7 +253,7 @@ main() {
                 die "root command requires root privileges. Use sudo."
             fi
             log_info "Applying root configuration..."
-            chezmoi init --source="${SCRIPT_DIR}/root" "${chezmoi_opts[@]}" --apply
+            chezmoi init --source="${SCRIPT_DIR}/root" "${chezmoi_opts[@]}" --apply --force
             log_success "Root configuration applied"
             ;;
         
@@ -262,7 +262,7 @@ main() {
                 die "user command should not be run as root"
             fi
             log_info "Applying user configuration..."
-            chezmoi init --source="${SCRIPT_DIR}/users" "${chezmoi_opts[@]}" --apply
+            chezmoi init --source="${SCRIPT_DIR}/users" "${chezmoi_opts[@]}" --apply --force
             log_success "User configuration applied"
             ;;
         
@@ -270,7 +270,7 @@ main() {
             if [[ $EUID -eq 0 ]]; then
                 # root として実行
                 log_info "Applying root configuration..."
-                chezmoi init --source="${SCRIPT_DIR}/root" "${chezmoi_opts[@]}" --apply
+                chezmoi init --source="${SCRIPT_DIR}/root" "${chezmoi_opts[@]}" --apply --force
                 log_success "Root configuration applied"
                 
                 # TARGET_USER が指定されていれば、そのユーザーの設定も適用
@@ -282,7 +282,7 @@ main() {
                         [[ -n "${CHEZMOI_NAME:-}" ]] && user_env+=" CHEZMOI_NAME='$CHEZMOI_NAME'"
                         [[ -n "${CHEZMOI_GITHUB_USER:-}" ]] && user_env+=" CHEZMOI_GITHUB_USER='$CHEZMOI_GITHUB_USER'"
                         [[ -n "${GITHUB_TOKEN:-}" ]] && user_env+=" GITHUB_TOKEN='$GITHUB_TOKEN'"
-                        su - "$TARGET_USER" -c "${user_env} chezmoi init --source='${SCRIPT_DIR}/users' ${chezmoi_opts[*]} --apply"
+                        su - "$TARGET_USER" -c "${user_env} chezmoi init --source='${SCRIPT_DIR}/users' ${chezmoi_opts[*]} --apply --force"
                         log_success "User configuration applied for ${TARGET_USER}"
                     else
                         log_warn "User ${TARGET_USER} does not exist, skipping user configuration"
@@ -294,7 +294,7 @@ main() {
             else
                 # 一般ユーザーとして実行
                 log_info "Applying user configuration..."
-                chezmoi init --source="${SCRIPT_DIR}/users" "${chezmoi_opts[@]}" --apply
+                chezmoi init --source="${SCRIPT_DIR}/users" "${chezmoi_opts[@]}" --apply --force
                 log_success "User configuration applied"
                 
                 log_warn "Root configuration skipped (not running as root)"
