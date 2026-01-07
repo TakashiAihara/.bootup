@@ -1,0 +1,38 @@
+[core]
+whitespace = cr-at-eol
+filemode = false
+quotepath = false
+commitGraph = true
+editor = nvim
+
+[credential]
+helper = cache --timeout=7200
+
+[ghq]
+root = ~/.ghq
+user = TakashiAihara
+
+[http]
+postBuffer = 157286400
+
+[diff]
+tool = default-difftool
+
+[difftool "default-difftool"]
+cmd = code --wait --diff $LOCAL $REMOTE
+
+[pull]
+rebase = false
+
+[init]
+defaultBranch = main
+
+[receive]
+advertisePushOptions = true
+
+[gc]
+writeCommitGraph = true
+
+[user]
+name = TakashiAihara
+email = 47384567+TakashiAihara@users.noreply.github.com

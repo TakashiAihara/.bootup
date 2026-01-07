@@ -25,9 +25,6 @@ cd /tmp/.bootup
 
 # Ubuntu サーバー（root で実行、dev ユーザーを自動作成）
 sudo ARCH=ubuntu AREA=home TARGET_USER=dev \
-  CHEZMOI_EMAIL=your@email.com \
-  CHEZMOI_NAME='Your Name' \
-  CHEZMOI_GITHUB_USER=yourusername \
   GITHUB_TOKEN='your_github_token' \
   ./install all
 ```
@@ -51,9 +48,6 @@ GITHUB_TOKEN='ghp_xxxxxxxxxxxx' ./install all
 | `ARCH` | ○ | アーキテクチャ: `wsl`, `ubuntu`, `ubuntu-dev`, `ubuntu_nat`, `mac` |
 | `AREA` | ○ | 環境: `home`, `gcp`, `oci`, `conoha` |
 | `TARGET_USER` | △ | セットアップ対象ユーザー（デフォルト: `dev`） |
-| `CHEZMOI_EMAIL` | △ | メールアドレス（未設定時はプロンプト） |
-| `CHEZMOI_NAME` | △ | フルネーム（未設定時はプロンプト） |
-| `CHEZMOI_GITHUB_USER` | △ | GitHub ユーザー名（未設定時はプロンプト） |
 | `GITHUB_TOKEN` | △ | GitHub API トークン（rate limit 回避用） |
 
 ## Commands
@@ -148,7 +142,7 @@ ARCH=ubuntu AREA=home ./install user
 │   ├── .chezmoi.toml.tmpl
 │   ├── .chezmoiscripts/    # ユーザー設定スクリプト
 │   ├── dot_zshrc.tmpl
-│   ├── dot_gitconfig.tmpl
+│   ├── dot_gitconfig
 │   └── dot_config/         # ~/.config/
 └── docs/
     └── CHANGELOG.md        # 変更履歴
@@ -167,9 +161,6 @@ cd /tmp/.bootup
 # 3. フルインストール実行
 ARCH=ubuntu AREA=home \
   TARGET_USER=dev \
-  CHEZMOI_EMAIL=dev@example.com \
-  CHEZMOI_NAME='Dev User' \
-  CHEZMOI_GITHUB_USER=TakashiAihara \
   GITHUB_TOKEN=$(gh auth token) \
   ./install all
 
@@ -195,13 +186,6 @@ User dev does not exist, skipping user configuration
 
 → `./install root` を先に実行するか、`./install all` を使用してください。
 
-### Interactive prompts fail
-
-```
-could not open a new TTY
-```
-
-→ `CHEZMOI_EMAIL`, `CHEZMOI_NAME`, `CHEZMOI_GITHUB_USER` を環境変数で設定してください。
 
 ## License
 
