@@ -50,6 +50,9 @@
 [submodule]
     recurse = true
 
+[clone]
+    recurseSubmodules = true
+
 [status]
     submoduleSummary = true
 
