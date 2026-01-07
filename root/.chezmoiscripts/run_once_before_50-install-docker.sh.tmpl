@@ -54,12 +54,7 @@ fi
 systemctl enable docker
 systemctl start docker
 
-{{ if .target_user -}}
-# ターゲットユーザーを docker グループに追加
-if [[ -n "{{ .target_user }}" ]]; then
-    usermod -aG docker "{{ .target_user }}"
-    echo "✓ Added {{ .target_user }} to docker group"
-fi
-{{ end -}}
+# Note: docker グループへのユーザー追加は 90-setup-user.sh で行う
+# (ユーザー作成より先にこのスクリプトが実行されるため)
 
 echo "=== Docker installation complete ==="
